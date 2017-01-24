@@ -172,6 +172,15 @@ void NGLScene::detectAndResolveCollisions(Point &a, std::vector<Point> *collisio
 
 }
 
+// Determine which octant of the tree would contain 'point'
+int NGLScene::getOctantContainingPoint( Point& point, QuadTree *tree) const {
+            int oct = 0;
+            if(point.x >= tree->x) oct |= 4; //tree->x,y,z is the origin of this tree/subtree
+            if(point.y >= tree->y) oct |= 2;
+            if(point.z >= tree->z) oct |= 1;
+            return oct;
+        }
+
 
 //This method used to be a member function of Quatree Structure
 void NGLScene::getPointCollisions(Point &a, QuadTree *tree)
@@ -183,6 +192,7 @@ void NGLScene::getPointCollisions(Point &a, QuadTree *tree)
     {
         //found element in root tree
         std::vector<Point>::iterator element=std::find(tree->container.begin(), tree->container.end(), a);
+
         if( element !=tree->container.end ())//found element
         {
             /////////////////////       !!!!!!!!!!!!!!!!!
@@ -194,7 +204,7 @@ void NGLScene::getPointCollisions(Point &a, QuadTree *tree)
             //**THIS could be the vector to test against (in ex. for neighbour search)**
             std::vector<Point> *collisionAreaPoints = &tree->container;
 
-            std::cout<<"neighbours of point at position("<<a.x<<","<<a.y<<") are="<<collisionAreaPoints->size()<<" out of all "<<totalCollisionObjects<<'\n';
+//            std::cout<<"neighbours of point at position("<<a.x<<","<<a.y<<") are="<<collisionAreaPoints->size()<<" out of all "<<totalCollisionObjects<<'\n';
 
             //Check collisions and push cube that collide with eachother further apart
 //            detectAndResolveCollisions( (*element), collisionAreaPoints, tree->width, tree->height);
@@ -214,8 +224,13 @@ void NGLScene::getPointCollisions(Point &a, QuadTree *tree)
         }
 
     }
-    else//if it's a branch , find if one of the 4 sub-areas intersects with the searched area / and if yes..then draw it there in that area
+    else//if it's a branch , find if one of the 8 sub-areas intersects with the searched area / and if yes..then draw it there in that area
     {
+
+        //find the octant the point is in , instead of checking all 8 individual split pieces of space
+        int octant=getOctantContainingPoint(a, tree);
+        if (octant!=7)
+            std::cout<<"octant="<<octant<<'\n';
 
         //TOP
 

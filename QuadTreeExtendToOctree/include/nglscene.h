@@ -15,7 +15,7 @@
 
 //unsigned static int maxCapacity;
 
-const static int totalCollisionObjects=1000;
+const static int totalCollisionObjects=5000;
 
 
  struct Point
@@ -312,6 +312,8 @@ protected:
     void loadMatricesToShader(ngl::Transformation &_transform, const ngl::Mat4 &_globalTx, ngl::Camera *_cam, ngl::Colour &c);
     void detectAndResolveCollisions(Point &a, std::vector<Point> *collisionAreaPoints, const float &width, const float &height);
     void getPointCollisions(Point &a, QuadTree *tree);
+
+    int getOctantContainingPoint(Point &point, QuadTree *tree) const ;
 
     void findTreeElements(QuadTree &tree);
     void deleteAreaByAreaElements(QuadTree &tree);
