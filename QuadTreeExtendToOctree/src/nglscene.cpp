@@ -9,8 +9,8 @@
 #include <QTime>
 
 
-//Initialize QuadTree
-QuadTree tree(0,0,0,totalCollisionObjects,totalCollisionObjects,totalCollisionObjects);
+//Initialize Octree
+Octree tree(0,0,0,totalCollisionObjects,totalCollisionObjects,totalCollisionObjects);
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ void NGLScene::detectAndResolveCollisions(Point &a, std::vector<Point> *collisio
 }
 
 // Determine which octant of the tree would contain 'point'
-int NGLScene::getOctantContainingPoint( Point& point, QuadTree *tree) const {
+int NGLScene::getOctantContainingPoint( Point& point, Octree *tree) const {
             int oct = 0;
             if(point.x >= tree->x) oct |= 4; //tree->x,y,z is the origin of this tree/subtree
             if(point.y >= tree->y) oct |= 2;
@@ -183,17 +183,17 @@ int NGLScene::getOctantContainingPoint( Point& point, QuadTree *tree) const {
 
 
 //This method used to be a member function of Quatree Structure
-void NGLScene::getPointCollisions(Point &a, QuadTree *tree)
+void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 {
     //if tree node is a leaf node
     if ( (tree->top_dl==NULL && tree->top_dr==NULL && tree->top_ul==NULL && tree->top_ur==NULL)
          && (tree->bottom_dl==NULL && tree->bottom_dr==NULL && tree->bottom_ul==NULL && tree->bottom_ur==NULL)
           )
     {
-        //found element in root tree
+        // element a in root tree
         std::vector<Point>::iterator element=std::find(tree->container.begin(), tree->container.end(), a);
 
-        if( element !=tree->container.end ())//found element
+        if( element !=tree->container.end ())// 'a' element found!!
         {
             /////////////////////       !!!!!!!!!!!!!!!!!
             /// \Section Added - For each element  of the tree that we search, we print the whole container using a another colour.
@@ -202,6 +202,7 @@ void NGLScene::getPointCollisions(Point &a, QuadTree *tree)
             ngl::Colour collisionAreaColour(ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), 1);
 
             //**THIS could be the vector to test against (in ex. for neighbour search)**
+            //SO..this &tree->container that contains the 'a'point, is the one to draw with this specifiv collisionAreaColour
             std::vector<Point> *collisionAreaPoints = &tree->container;
 
 //            std::cout<<"neighbours of point at position("<<a.x<<","<<a.y<<") are="<<collisionAreaPoints->size()<<" out of all "<<totalCollisionObjects<<'\n';
@@ -228,9 +229,9 @@ void NGLScene::getPointCollisions(Point &a, QuadTree *tree)
     {
 
         //find the octant the point is in , instead of checking all 8 individual split pieces of space
-        int octant=getOctantContainingPoint(a, tree);
-        if (octant!=7)
-            std::cout<<"octant="<<octant<<'\n';
+//        int octant=getOctantContainingPoint(a, tree);
+//        if (octant!=7)
+//            std::cout<<"octant="<<octant<<'\n';
 
         //TOP
 
@@ -307,7 +308,7 @@ void NGLScene::getPointCollisions(Point &a, QuadTree *tree)
 }
 
 
-void NGLScene::deleteAreaByAreaElements(QuadTree &tree)
+void NGLScene::deleteAreaByAreaElements(Octree &tree)
 {
     ngl::ShaderLib *shader = ngl::ShaderLib::instance ();
      (*shader)["nglDiffuseShader"]->use();
@@ -338,7 +339,7 @@ void NGLScene::deleteAreaByAreaElements(QuadTree &tree)
 
 
 
-    //Comment out some of the following quadtree collision regions and PushButton on the Gui, to delete some of the 1st level quatree splits (1 of the 4 first quadrants of the quadtree)
+    //Comment out some of the following Octree collision regions and PushButton on the Gui, to delete some of the 1st level quatree splits (1 of the 4 first quadrants of the Octree)
     if (tree.top_dl!=NULL)
     {
         update ();
@@ -398,7 +399,7 @@ void NGLScene::paintGL ()
     m_mouseGlobalTX.m_m[3][2] = m_modelPos.m_z;
 
 
-        for(unsigned int i=0;i<treePositions.size ();i++)
+        for(size_t i=0;i<treePositions.size ();i++)
         {
            getPointCollisions(treePositions[i],&tree);
         }

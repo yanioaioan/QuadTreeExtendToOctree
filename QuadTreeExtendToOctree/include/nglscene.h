@@ -29,21 +29,21 @@ const static int totalCollisionObjects=5000;
 
  };
 
- typedef struct QuadTree
+ typedef struct Octree
  {
-     QuadTree(const QuadTree& t){x=t.x; y=t.y; z=t.z;}
+     Octree(const Octree& t){x=t.x; y=t.y; z=t.z;}
 
      std::vector<Point>container;
-     QuadTree *top_dl =NULL;
-     QuadTree *top_dr =NULL;
-     QuadTree *top_ul =NULL;
-     QuadTree *top_ur =NULL;
-     QuadTree *bottom_dl =NULL;
-     QuadTree *bottom_dr =NULL;
-     QuadTree *bottom_ul =NULL;
-     QuadTree *bottom_ur =NULL;
+     Octree *top_dl =NULL;
+     Octree *top_dr =NULL;
+     Octree *top_ul =NULL;
+     Octree *top_ur =NULL;
+     Octree *bottom_dl =NULL;
+     Octree *bottom_dr =NULL;
+     Octree *bottom_ul =NULL;
+     Octree *bottom_ur =NULL;
      float x,y,z, width, height, depth;
-     QuadTree(float _x,float _y,float _z, float _width,float _height, float _depth)
+     Octree(float _x,float _y,float _z, float _width,float _height, float _depth)
      {
          x =_x;
          y =_y;
@@ -67,19 +67,19 @@ const static int totalCollisionObjects=5000;
          float halfwidth =width /2;
          float halfheight =height /2;
          float halfdepth = depth /2;
-         //create 4 sub-trees based on the width&height of the parent Quadtree
+         //create 4 sub-trees based on the width&height of the parent Octree
 
          //top quad
-         top_dl =new QuadTree(x,y,z, halfwidth, halfheight,halfdepth);
-         top_dr =new QuadTree(x +halfwidth,y, z, halfwidth,halfheight,halfdepth);
-         top_ul =new QuadTree(x,y +halfheight, z, halfwidth,halfheight,halfdepth);
-         top_ur =new QuadTree(x+halfwidth,y+halfheight, z, halfwidth,halfheight,halfdepth);
+         top_dl =new Octree(x,y,z, halfwidth, halfheight,halfdepth);
+         top_dr =new Octree(x +halfwidth,y, z, halfwidth,halfheight,halfdepth);
+         top_ul =new Octree(x,y +halfheight, z, halfwidth,halfheight,halfdepth);
+         top_ur =new Octree(x+halfwidth,y+halfheight, z, halfwidth,halfheight,halfdepth);
 
          //bottom quad
-         bottom_dl =new QuadTree(x,y, z+halfdepth, halfwidth, halfheight,-halfdepth);
-         bottom_dr =new QuadTree(x +halfwidth,y, z+halfdepth, halfwidth, halfheight, -halfdepth);
-         bottom_ul =new QuadTree(x,y +halfheight, z+halfdepth, halfwidth,halfheight ,-halfdepth);
-         bottom_ur =new QuadTree(x+halfwidth,y+halfheight, z+halfdepth, halfwidth, halfheight, -halfdepth);
+         bottom_dl =new Octree(x,y, z+halfdepth, halfwidth, halfheight,-halfdepth);
+         bottom_dr =new Octree(x +halfwidth,y, z+halfdepth, halfwidth, halfheight, -halfdepth);
+         bottom_ul =new Octree(x,y +halfheight, z+halfdepth, halfwidth,halfheight ,-halfdepth);
+         bottom_ur =new Octree(x+halfwidth,y+halfheight, z+halfdepth, halfwidth, halfheight, -halfdepth);
 
          for(unsigned int i =0;i <container.size();i++)
          {
@@ -129,7 +129,7 @@ const static int totalCollisionObjects=5000;
      }
 
 
-//     void getPointCollisions(Point &a, QuadTree *tree)
+//     void getPointCollisions(Point &a, Octree *tree)
 //     {
 //         //if tree node is a leaf node
 //         if ( (tree->ul==NULL && tree->ur==NULL && tree->dl==NULL && tree->dr==NULL) /*&&  std::find(tree->container.begin(), tree->container.end(), a) !=tree->container.end()*/ )
@@ -290,7 +290,7 @@ const static int totalCollisionObjects=5000;
 
 //     }
 
- }QuadTree;
+ }Octree;
  //Binary Search Tree
 
 
@@ -311,12 +311,12 @@ protected:
     void resizeGL (QResizeEvent *_event);
     void loadMatricesToShader(ngl::Transformation &_transform, const ngl::Mat4 &_globalTx, ngl::Camera *_cam, ngl::Colour &c);
     void detectAndResolveCollisions(Point &a, std::vector<Point> *collisionAreaPoints, const float &width, const float &height);
-    void getPointCollisions(Point &a, QuadTree *tree);
+    void getPointCollisions(const Point &a, Octree *tree);
 
-    int getOctantContainingPoint(Point &point, QuadTree *tree) const ;
+    int getOctantContainingPoint(Point &point, Octree *tree) const ;
 
-    void findTreeElements(QuadTree &tree);
-    void deleteAreaByAreaElements(QuadTree &tree);
+    void findTreeElements(Octree &tree);
+    void deleteAreaByAreaElements(Octree &tree);
 
     void paintGL ();
 
