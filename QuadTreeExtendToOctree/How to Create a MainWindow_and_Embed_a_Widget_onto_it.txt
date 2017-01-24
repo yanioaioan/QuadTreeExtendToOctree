@@ -1,0 +1,12 @@
+1)create a project with a main.cpp
+2)add to the project from the Qt Menu:Qt Designer Form Class
+3)go to the form & add a groupbox to it
+4)then hit the "grid layout" button on the top of the form
+5)then add a second groupbox under the first one
+6)place buttons to each of the groupboxes and hit the "grid layout" button on the top of the form
+7)add  *m_gl pointer to the MainWindow class.
+8)create a new: m_gl=new NGLScene(this); in Mainwindow class
+9)ui->gridLayout->addWidget (m_gl,0,0,2,1);
+10)add signals & slots by either RClicking othe controls on the form , or by using manual signal-slot connection
+	i)connect(ui->pushButton, SIGNAL(clicked(bool)),  m_gl, SLOT(testButtonClicked(bool)) );
+   ii)public slots & signals as well as functions for emiting the corresponding signals and handling the slot behaviour 	  too: added on the gl widget class
