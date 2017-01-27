@@ -22,22 +22,26 @@ const static int totalCollisionObjects=10;
 
  struct Point
  {
-     float x,y,z;
+     int x,y,z;
      int id;
 
-     Point(int _id,float _x,float _y, float _z):id(_id),x(_x),y(_y),z(_z){}
+     Point(int _id,int _x,int _y, int _z):id(_id),x(_x),y(_y),z(_z){}
 
-     bool AreSame(float a, float b)const
+     bool AreSame(int a, int b)const
      {
          bool val=fabs(a - b) < epsilon;
          return val;
      }
 
      bool operator==(const Point& a ) const {
-             return AreSame(a.x, x) && AreSame(a.y, y) && AreSame(a.z, z);
+//             return AreSame(a.x, x) && AreSame(a.y, y) && AreSame(a.z, z);
+         return a.x==x && a.y==y && a.z==z;
          }
 
  };
+
+
+ static size_t treesize;
 
  typedef struct Octree
  {
@@ -53,7 +57,8 @@ const static int totalCollisionObjects=10;
      Octree *back_ul =NULL;
      Octree *back_ur =NULL;
      float x,y,z, width, height, depth;
-     Octree(float _x,float _y,float _z, float _width,float _height, float _depth)
+
+     Octree(int _x,int _y,int _z, int _width,int _height, int _depth)
      {
          x =_x;
          y =_y;
@@ -72,11 +77,41 @@ const static int totalCollisionObjects=10;
      //creating too much overhead for no reason at all, as we split space and don't put/allocate points in
      unsigned int maxCapacity=totalCollisionObjects/spliInNodes;
 
+     int countBranches()
+     {
+         if ( (front_dl==NULL &&front_dr==NULL &&front_ul==NULL &&front_ur==NULL)
+              && (back_dl==NULL &&back_dr==NULL &&back_ul==NULL &&back_ur==NULL)
+               )
+         {
+              treesize+=container.size();
+         }
+         if (front_dl!=NULL && front_dl->container.size()!=0)
+             front_dl->countBranches();
+
+         if (front_dr!=NULL&&front_dr->container.size()!=0)
+             front_dr->countBranches();
+
+          if (front_ul!=NULL&&front_ul->container.size()!=0)
+             front_ul->countBranches();
+
+          if (front_ur!=NULL&&front_ur->container.size()!=0)
+             front_ur->countBranches();
+
+          if (back_dl!=NULL&&back_dl->container.size()!=0)
+             back_dl->countBranches();
+          if (back_dr!=NULL&&back_dr->container.size()!=0)
+             back_dr->countBranches();
+          if (back_ul!=NULL&&back_ul->container.size()!=0)
+             back_ul->countBranches();
+          if (back_ur!=NULL&&back_ur->container.size()!=0)
+             back_ur->countBranches();
+     }
+
      void split()
      {
-         float halfwidth =width /2;
-         float halfheight =height /2;
-         float halfdepth = depth /2;
+         int halfwidth =width /2;
+         int halfheight =height /2;
+         int halfdepth = depth /2;
          //create 4 sub-trees based on the width&height of the parent Octree
 
          //top quad

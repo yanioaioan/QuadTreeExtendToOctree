@@ -81,9 +81,9 @@ void NGLScene::initializeGL ()
     for(int i=0;i<totalCollisionObjects;i++)
     {
        ngl::Random *rng=ngl::Random::instance ();
-       float x = rng->randomPositiveNumber(10.0);
-       float y = rng->randomPositiveNumber (10.0);
-       float z = rng->randomPositiveNumber (10.0);
+       int x = (int)rng->randomPositiveNumber(totalCollisionObjects-1);
+       int y = (int)rng->randomPositiveNumber (totalCollisionObjects-1);
+       int z = (int)rng->randomPositiveNumber (totalCollisionObjects-1);
 
 //       x=i;y=0;z=0;
 
@@ -218,7 +218,7 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 
             for(size_t i=0;i<collisionAreaPoints->size ();i++)
             {
-                m_transform.setPosition ( (*collisionAreaPoints)[i].x/*/totalCollisionObjects*/ ,(*collisionAreaPoints)[i].y/*/totalCollisionObjects*/, (*collisionAreaPoints)[i].z);
+                m_transform.setPosition ( (*collisionAreaPoints)[i].x/*/totalCollisionObjects*/ ,i*2*(*collisionAreaPoints)[i].y/*/totalCollisionObjects*/, (*collisionAreaPoints)[i].z);
 //                m_transform.setScale (0.01, 0.01, 1);
 
                 loadMatricesToShader (m_transform,m_mouseGlobalTX, m_cam, collisionAreaColour);
@@ -434,6 +434,9 @@ void NGLScene::paintGL ()
     m_mouseGlobalTX.m_m[3][1] = m_modelPos.m_y;
     m_mouseGlobalTX.m_m[3][2] = m_modelPos.m_z;
 
+    treesize=0;
+    tree.countBranches();
+    std::cout<<"treesize="<<treesize<<'\n';
 
         for(size_t i=0;i<treePositions.size ();i++)
         {
