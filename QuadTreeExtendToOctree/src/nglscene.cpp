@@ -88,11 +88,11 @@ void NGLScene::initializeGL ()
 //       x=i;y=0;z=0;
 
        //save positions
-       Point t(x,y,z);
+       Point t(i,x,y,z);
        treePositions.push_back (t);
 
 
-       Point tempPoint(x,y,z);//or insert x,y instead of i,i to create some randomness
+       Point tempPoint(i,x,y,z);//or insert x,y instead of i,i to create some randomness
        tree.addPoint(tempPoint);
     }
 
@@ -198,6 +198,9 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 
         if( element !=tree->container.end ())// 'a' element found!!
         {
+
+            std::cout<<"drawing neighbours of particle_with id="<<a.id<<'\n';
+
             /////////////////////       !!!!!!!!!!!!!!!!!
             /// \Section Added - For each element  of the tree that we search, we print the whole container using a another colour.
             /// Each neighbourhood should now have a different separate colour

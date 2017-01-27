@@ -23,8 +23,9 @@ const static int totalCollisionObjects=10;
  struct Point
  {
      float x,y,z;
+     int id;
 
-     Point(float _x,float _y, float _z):x(_x),y(_y),z(_z){}
+     Point(int _id,float _x,float _y, float _z):id(_id),x(_x),y(_y),z(_z){}
 
      bool AreSame(float a, float b)const
      {
@@ -86,7 +87,7 @@ const static int totalCollisionObjects=10;
 
          //bottom quad
          back_dl =new Octree(x,y, z+halfdepth, halfwidth, halfheight,halfdepth);
-         back_dr =new Octree(x +halfwidth,y, z+halfdepth, halfwidth, halfheight, halfdepth);
+         back_dr =new Octree(x+halfwidth, y, z+halfdepth, halfwidth, halfheight, halfdepth);
          back_ul =new Octree(x,y +halfheight, z+halfdepth, halfwidth,halfheight ,halfdepth);
          back_ur =new Octree(x+halfwidth,y+halfheight, z+halfdepth, halfwidth, halfheight, halfdepth);
 
