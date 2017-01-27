@@ -54,7 +54,7 @@ void NGLScene::initializeGL ()
     glClearColor (0.4,0.4,0.4,1);
     std::cout<<"Initializing NGL\n";
 
-    ngl::Vec3 from(100,200,200);ngl::Vec3 to(0,0,0);ngl::Vec3 up(0,1,0);
+    ngl::Vec3 from(10,10,100);ngl::Vec3 to(0,0,0);ngl::Vec3 up(0,1,0);
     m_cam = new ngl::Camera(from,to,up);
     m_cam->setShape(45,(float)720/576,0.05,350);
 
@@ -81,13 +81,16 @@ void NGLScene::initializeGL ()
     for(int i=0;i<totalCollisionObjects;i++)
     {
        ngl::Random *rng=ngl::Random::instance ();
-       int x = (int)rng->randomPositiveNumber(100);
-       int y = (int)rng->randomPositiveNumber (100);
-       int z = (int)rng->randomPositiveNumber (100);
+       float x = rng->randomPositiveNumber(10.0);
+       float y = rng->randomPositiveNumber (10.0);
+       float z = rng->randomPositiveNumber (10.0);
+
+//       x=i;y=0;z=0;
 
        //save positions
        Point t(x,y,z);
        treePositions.push_back (t);
+
 
        Point tempPoint(x,y,z);//or insert x,y instead of i,i to create some randomness
        tree.addPoint(tempPoint);
@@ -96,7 +99,7 @@ void NGLScene::initializeGL ()
 
     //find & get the collision neighbours of Point a(8,8), if (8,8) is in the tree
 //    Point a(3,3);
-    //Point a(2530,7399);    
+    //Point a(2530,7399);
 //    getPointCollisions(a,&tree);
 
     currenttime.start ();
@@ -186,8 +189,8 @@ int NGLScene::getOctantContainingPoint( Point& point, Octree *tree) const {
 void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 {
     //if tree node is a leaf node (all of its 8 pointers have point to NULL)
-    if ( (tree->top_dl==NULL && tree->top_dr==NULL && tree->top_ul==NULL && tree->top_ur==NULL)
-         && (tree->bottom_dl==NULL && tree->bottom_dr==NULL && tree->bottom_ul==NULL && tree->bottom_ur==NULL)
+    if ( (tree->front_dl==NULL && tree->front_dr==NULL && tree->front_ul==NULL && tree->front_ur==NULL)
+         && (tree->back_dl==NULL && tree->back_dr==NULL && tree->back_ul==NULL && tree->back_ur==NULL)
           )
     {
         // search element a in this tree
@@ -231,7 +234,7 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
         //find the octant the point is in , instead of checking all 8 individual split pieces of space
 //        int octant=getOctantContainingPoint(a, tree);
 //        if (octant!=7)
-//            std::cout<<"octant="<<octant<<'\n';
+//
 
 
         int xsign = a.x>tree->width/2;
@@ -239,105 +242,96 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
         int zsign = a.z>tree->depth/2;
 
         int octant = xsign + 2*ysign + 4*zsign;
-        switch (octant)
-        {
-            case 0:
-            {getPointCollisions (a,(tree->top_dl));}
-                break;
-//            case 1:
-//            {getPointCollisions (a, (tree->top_dr));}
-//                break;
-//            case 2:
-//            {getPointCollisions (a, (tree->top_ul));}
-//                break;
-//            case 3:
-//            {getPointCollisions (a, (tree->top_ur));}
-//                break;
-//            case 4:
-//            {getPointCollisions (a, (tree->bottom_dl));}
-//                break;
-//            case 5:
-//            {getPointCollisions (a,(tree->bottom_dr));}
-//                break;
-//            case 6:
-//            {getPointCollisions (a,(tree->bottom_ul));}
-//                break;
-//            case 7:
-//            {getPointCollisions (a,(tree->bottom_ur));}
-//                break;
-            default:
-                break;
-        }
+        std::cout<<"octant="<<octant<<'\n';
 
-//        // find in which octant does the 'a' point lies into
+        // find in which octant does the 'a' point lies into
+        if (octant==0)
+            getPointCollisions (a,(tree->front_dl));
+        if (octant==1)
+            getPointCollisions (a,(tree->front_dr));
+        if (octant==2)
+            getPointCollisions (a,(tree->front_ul));
+        if (octant==3)
+            getPointCollisions (a,(tree->front_ur));
+        if (octant==4)
+            getPointCollisions (a,(tree->back_dl));
+        if (octant==5)
+            getPointCollisions (a,(tree->back_dr));
+        if (octant==6)
+            getPointCollisions (a,(tree->back_ul));
+        if (octant==7)
+            getPointCollisions (a,(tree->back_ur));
 
-//        //TOP
 
-//        if (a.x >= tree->top_dl->x && a.x <= tree->top_dl->x+tree->top_dl->width &&
-//            a.y >= tree->top_dl->y && a.y <= tree->top_dl->y+tree->top_dl->height &&
-//            a.z >= tree->top_dl->z && a.z <= tree->top_dl->z+tree->top_dl->depth
+
+
+        //TOP
+
+//        if (a.x >= tree->front_dl->x && a.x <= tree->front_dl->x+tree->front_dl->width &&
+//            a.y >= tree->front_dl->y && a.y <= tree->front_dl->y+tree->front_dl->height &&
+//            a.z >= tree->front_dl->z && a.z <= tree->front_dl->z+tree->front_dl->depth
 //            )
 //        {
-//            //and dig one level down to check if 'a' is one of the leaf nodes of this tree->top_dl, so as to query all of its neighbours too
-//            getPointCollisions (a,(tree->top_dl));
+//            //and dig one level down to check if 'a' is one of the leaf nodes of this tree->front_dl, so as to query all of its neighbours too
+//            getPointCollisions (a,(tree->front_dl));
 //        }
 
-//        if (a.x >= tree->top_dr->x && a.x <= tree->top_dr->x+tree->top_dr->width &&
-//            a.y >= tree->top_dr->y && a.y <= tree->top_dr->y+tree->top_dr->height &&
-//            a.z >= tree->top_dr->z && a.z <= tree->top_dr->z+tree->top_dr->depth
+//        if (a.x >= tree->front_dr->x && a.x <= tree->front_dr->x+tree->front_dr->width &&
+//            a.y >= tree->front_dr->y && a.y <= tree->front_dr->y+tree->front_dr->height &&
+//            a.z >= tree->front_dr->z && a.z <= tree->front_dr->z+tree->front_dr->depth
 //           )
 //        {
-//            getPointCollisions (a,(tree->top_dr));
+//            getPointCollisions (a,(tree->front_dr));
 //        }
 
-//        if (a.x >= tree->top_ul->x && a.x <= tree->top_ul->x+tree->top_ul->width &&
-//            a.y >= tree->top_ul->y && a.y <= tree->top_ul->y+tree->top_ul->height &&
-//            a.z >= tree->top_ul->z && a.z <= tree->top_ul->z+tree->top_ul->depth
+//        if (a.x >= tree->front_ul->x && a.x <= tree->front_ul->x+tree->front_ul->width &&
+//            a.y >= tree->front_ul->y && a.y <= tree->front_ul->y+tree->front_ul->height &&
+//            a.z >= tree->front_ul->z && a.z <= tree->front_ul->z+tree->front_ul->depth
 //            )
 //        {
-//            getPointCollisions (a,(tree->top_ul));
+//            getPointCollisions (a,(tree->front_ul));
 //        }
 
-//        if (a.x >= tree->top_ur->x && a.x <= tree->top_ur->x+tree->top_ur->width &&
-//            a.y >= tree->top_ur->y && a.y <= tree->top_ur->y+tree->top_ur->height &&
-//            a.z >= tree->top_ur->z && a.z <= tree->top_ur->z+tree->top_ur->depth
+//        if (a.x >= tree->front_ur->x && a.x <= tree->front_ur->x+tree->front_ur->width &&
+//            a.y >= tree->front_ur->y && a.y <= tree->front_ur->y+tree->front_ur->height &&
+//            a.z >= tree->front_ur->z && a.z <= tree->front_ur->z+tree->front_ur->depth
 //            )
 //        {
-//            getPointCollisions (a,(tree->top_ur));
+//            getPointCollisions (a,(tree->front_ur));
 //        }
 
 //        //BOTTOM
 
-//        if (a.x >= tree->top_dl->x && a.x <= tree->top_dl->x+tree->top_dl->width &&
-//            a.y >= tree->top_dl->y && a.y <= tree->top_dl->y+tree->top_dl->height &&
-//            a.z >= tree->top_dl->z && a.z <= tree->top_dl->z+tree->top_dl->depth
+//        if (a.x >= tree->back_dl->x && a.x <= tree->back_dl->x+tree->back_dl->width &&
+//            a.y >= tree->back_dl->y && a.y <= tree->back_dl->y+tree->back_dl->height &&
+//            a.z >= tree->back_dl->z && a.z <= tree->back_dl->z+tree->back_dl->depth
 //            )
 //        {
-//            getPointCollisions (a,(tree->top_dl));
+//            getPointCollisions (a,(tree->back_dl));
 //        }
 
-//        if (a.x >= tree->bottom_dr->x && a.x <= tree->bottom_dr->x+tree->bottom_dr->width &&
-//            a.y >= tree->bottom_dr->y && a.y <= tree->bottom_dr->y+tree->bottom_dr->height &&
-//            a.z >= tree->bottom_dr->z && a.z <= tree->bottom_dr->z+tree->bottom_dr->depth
+//        if (a.x >= tree->back_dr->x && a.x <= tree->back_dr->x+tree->back_dr->width &&
+//            a.y >= tree->back_dr->y && a.y <= tree->back_dr->y+tree->back_dr->height &&
+//            a.z >= tree->back_dr->z && a.z <= tree->back_dr->z+tree->back_dr->depth
 //           )
 //        {
-//            getPointCollisions (a,(tree->bottom_dr));
+//            getPointCollisions (a,(tree->back_dr));
 //        }
 
-//        if (a.x >= tree->bottom_ul->x && a.x <= tree->bottom_ul->x+tree->bottom_ul->width &&
-//            a.y >= tree->bottom_ul->y && a.y <= tree->bottom_ul->y+tree->bottom_ul->height &&
-//            a.z >= tree->bottom_ul->z && a.z <= tree->bottom_ul->z+tree->bottom_ul->depth
+//        if (a.x >= tree->back_ul->x && a.x <= tree->back_ul->x+tree->back_ul->width &&
+//            a.y >= tree->back_ul->y && a.y <= tree->back_ul->y+tree->back_ul->height &&
+//            a.z >= tree->back_ul->z && a.z <= tree->back_ul->z+tree->back_ul->depth
 //            )
 //        {
-//            getPointCollisions (a,(tree->bottom_ul));
+//            getPointCollisions (a,(tree->back_ul));
 //        }
 
-//        if (a.x >= tree->bottom_ur->x && a.x <= tree->bottom_ur->x+tree->bottom_ur->width &&
-//            a.y >= tree->bottom_ur->y && a.y <= tree->bottom_ur->y+tree->bottom_ur->height &&
-//            a.z >= tree->bottom_ur->z && a.z <= tree->bottom_ur->z+tree->bottom_ur->depth
+//        if (a.x >= tree->back_ur->x && a.x <= tree->back_ur->x+tree->back_ur->width &&
+//            a.y >= tree->back_ur->y && a.y <= tree->back_ur->y+tree->back_ur->height &&
+//            a.z >= tree->back_ur->z && a.z <= tree->back_ur->z+tree->back_ur->depth
 //            )
 //        {
-//            getPointCollisions (a,(tree->bottom_ur));
+//            getPointCollisions (a,(tree->back_ur));
 //        }
 
 
@@ -379,37 +373,37 @@ void NGLScene::deleteAreaByAreaElements(Octree &tree)
 
 
     //Comment out some of the following Octree collision regions and PushButton on the Gui, to delete some of the 1st level Octree splits (1 of the 4 first quadrants of the Octree)
-    if (tree.top_dl!=NULL)
+    if (tree.front_dl!=NULL)
     {
         update ();
     }
-    if (tree.top_dr!=NULL)
+    if (tree.front_dr!=NULL)
     {
         update ();
     }
-    if (tree.top_ul!=NULL)
+    if (tree.front_ul!=NULL)
     {
         update ();
     }
-    if (tree.top_ur!=NULL)
+    if (tree.front_ur!=NULL)
     {
         update ();
     }
 
     //Bottom
-    if (tree.bottom_dl!=NULL)
+    if (tree.back_dl!=NULL)
     {
         update ();
     }
-    if (tree.bottom_dr!=NULL)
+    if (tree.back_dr!=NULL)
     {
         update ();
     }
-    if (tree.bottom_ul!=NULL)
+    if (tree.back_ul!=NULL)
     {
         update ();
     }
-    if (tree.bottom_ur!=NULL)
+    if (tree.back_ur!=NULL)
     {
         update ();
     }

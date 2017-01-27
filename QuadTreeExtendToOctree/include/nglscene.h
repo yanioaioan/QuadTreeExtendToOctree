@@ -15,7 +15,9 @@
 
 //unsigned static int maxCapacity;
 
-const static int totalCollisionObjects=5000;
+const static int totalCollisionObjects=10;
+
+#define epsilon 1.0E-8
 
 
  struct Point
@@ -23,8 +25,15 @@ const static int totalCollisionObjects=5000;
      float x,y,z;
 
      Point(float _x,float _y, float _z):x(_x),y(_y),z(_z){}
+
+     bool AreSame(float a, float b)const
+     {
+         bool val=fabs(a - b) < epsilon;
+         return val;
+     }
+
      bool operator==(const Point& a ) const {
-             return a.x == x && a.y == y && a.z == z;
+             return AreSame(a.x, x) && AreSame(a.y, y) && AreSame(a.z, z);
          }
 
  };
@@ -34,14 +43,14 @@ const static int totalCollisionObjects=5000;
      Octree(const Octree& t){x=t.x; y=t.y; z=t.z;}
 
      std::vector<Point>container;
-     Octree *top_dl =NULL;
-     Octree *top_dr =NULL;
-     Octree *top_ul =NULL;
-     Octree *top_ur =NULL;
-     Octree *bottom_dl =NULL;
-     Octree *bottom_dr =NULL;
-     Octree *bottom_ul =NULL;
-     Octree *bottom_ur =NULL;
+     Octree *front_dl =NULL;
+     Octree *front_dr =NULL;
+     Octree *front_ul =NULL;
+     Octree *front_ur =NULL;
+     Octree *back_dl =NULL;
+     Octree *back_dr =NULL;
+     Octree *back_ul =NULL;
+     Octree *back_ur =NULL;
      float x,y,z, width, height, depth;
      Octree(float _x,float _y,float _z, float _width,float _height, float _depth)
      {
@@ -70,29 +79,29 @@ const static int totalCollisionObjects=5000;
          //create 4 sub-trees based on the width&height of the parent Octree
 
          //top quad
-         top_dl =new Octree(x,y,z, halfwidth, halfheight,halfdepth);
-         top_dr =new Octree(x +halfwidth,y, z, halfwidth,halfheight,halfdepth);
-         top_ul =new Octree(x,y +halfheight, z, halfwidth,halfheight,halfdepth);
-         top_ur =new Octree(x+halfwidth,y+halfheight, z, halfwidth,halfheight,halfdepth);
+         front_dl =new Octree(x,y,z, halfwidth, halfheight,halfdepth);
+         front_dr =new Octree(x +halfwidth,y, z, halfwidth,halfheight,halfdepth);
+         front_ul =new Octree(x,y +halfheight, z, halfwidth,halfheight,halfdepth);
+         front_ur =new Octree(x+halfwidth,y+halfheight, z, halfwidth,halfheight,halfdepth);
 
          //bottom quad
-         bottom_dl =new Octree(x,y, z+halfdepth, halfwidth, halfheight,-halfdepth);
-         bottom_dr =new Octree(x +halfwidth,y, z+halfdepth, halfwidth, halfheight, -halfdepth);
-         bottom_ul =new Octree(x,y +halfheight, z+halfdepth, halfwidth,halfheight ,-halfdepth);
-         bottom_ur =new Octree(x+halfwidth,y+halfheight, z+halfdepth, halfwidth, halfheight, -halfdepth);
+         back_dl =new Octree(x,y, z+halfdepth, halfwidth, halfheight,halfdepth);
+         back_dr =new Octree(x +halfwidth,y, z+halfdepth, halfwidth, halfheight, halfdepth);
+         back_ul =new Octree(x,y +halfheight, z+halfdepth, halfwidth,halfheight ,halfdepth);
+         back_ur =new Octree(x+halfwidth,y+halfheight, z+halfdepth, halfwidth, halfheight, halfdepth);
 
          for(unsigned int i =0;i <container.size();i++)
          {
-             top_dl->addPoint(container[i]);
-             top_dr->addPoint(container[i]);
-             top_ul->addPoint(container[i]);
-             top_ur->addPoint(container[i]);
+             front_dl->addPoint(container[i]);
+             front_dr->addPoint(container[i]);
+             front_ul->addPoint(container[i]);
+             front_ur->addPoint(container[i]);
 
 
-             bottom_dl->addPoint(container[i]);
-             bottom_dr->addPoint(container[i]);
-             bottom_ul->addPoint(container[i]);
-             bottom_ur->addPoint(container[i]);
+             back_dl->addPoint(container[i]);
+             back_dr->addPoint(container[i]);
+             back_ul->addPoint(container[i]);
+             back_ur->addPoint(container[i]);
 
          }
      }
@@ -104,7 +113,7 @@ const static int totalCollisionObjects=5000;
          //ensure within the quad boundairies
          if(a.x >=x && a.y >=y && a.z >=z && a.x <x +width &&a.y <y +height && a.z <z +depth)
          {
-             if(top_dl ==NULL)
+             if(front_dl ==NULL)
              {
                  //add the this node's container the points inserted
                  container.push_back(a);
@@ -115,15 +124,15 @@ const static int totalCollisionObjects=5000;
              else
              {
                  //if the area already has a point, then assign it the appropriate quadrant
-                 top_dl->addPoint(a);
-                 top_dr->addPoint(a);
-                 top_ul->addPoint(a);
-                 top_ur->addPoint(a);
+                 front_dl->addPoint(a);
+                 front_dr->addPoint(a);
+                 front_ul->addPoint(a);
+                 front_ur->addPoint(a);
 
-                 bottom_dl->addPoint(a);
-                 bottom_dr->addPoint(a);
-                 bottom_ul->addPoint(a);
-                 bottom_ur->addPoint(a);
+                 back_dl->addPoint(a);
+                 back_dr->addPoint(a);
+                 back_ul->addPoint(a);
+                 back_ur->addPoint(a);
              }
          }
      }
