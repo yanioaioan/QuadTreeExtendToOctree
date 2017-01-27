@@ -77,7 +77,7 @@ void NGLScene::initializeGL ()
     // as re-size is not explicitly called we need to do this.
    glViewport(0,0,width(),height());
 
-    //Fill random 2D Values to Quatree
+    //Fill random 2D Values to Octree
     for(int i=0;i<totalCollisionObjects;i++)
     {
        ngl::Random *rng=ngl::Random::instance ();
@@ -182,15 +182,15 @@ int NGLScene::getOctantContainingPoint( Point& point, Octree *tree) const {
         }
 
 
-//This method used to be a member function of Quatree Structure
+//This method used to be a member function of Octree Structure
 void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 {
-    //if tree node is a leaf node
+    //if tree node is a leaf node (all of its 8 pointers have point to NULL)
     if ( (tree->top_dl==NULL && tree->top_dr==NULL && tree->top_ul==NULL && tree->top_ur==NULL)
          && (tree->bottom_dl==NULL && tree->bottom_dr==NULL && tree->bottom_ul==NULL && tree->bottom_ur==NULL)
           )
     {
-        // element a in root tree
+        // search element a in this tree
         std::vector<Point>::iterator element=std::find(tree->container.begin(), tree->container.end(), a);
 
         if( element !=tree->container.end ())// 'a' element found!!
@@ -233,73 +233,112 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 //        if (octant!=7)
 //            std::cout<<"octant="<<octant<<'\n';
 
-        //TOP
 
-        if (a.x >= tree->top_dl->x && a.x <= tree->top_dl->x+tree->top_dl->width &&
-            a.y >= tree->top_dl->y && a.y <= tree->top_dl->y+tree->top_dl->height &&
-            a.z >= tree->top_dl->z && a.z <= tree->top_dl->z+tree->top_dl->depth
-            )
+        int xsign = a.x>tree->width/2;
+        int ysign = a.y>tree->height/2;
+        int zsign = a.z>tree->depth/2;
+
+        int octant = xsign + 2*ysign + 4*zsign;
+        switch (octant)
         {
-            getPointCollisions (a,(tree->top_dl));
+            case 0:
+            {getPointCollisions (a,(tree->top_dl));}
+                break;
+//            case 1:
+//            {getPointCollisions (a, (tree->top_dr));}
+//                break;
+//            case 2:
+//            {getPointCollisions (a, (tree->top_ul));}
+//                break;
+//            case 3:
+//            {getPointCollisions (a, (tree->top_ur));}
+//                break;
+//            case 4:
+//            {getPointCollisions (a, (tree->bottom_dl));}
+//                break;
+//            case 5:
+//            {getPointCollisions (a,(tree->bottom_dr));}
+//                break;
+//            case 6:
+//            {getPointCollisions (a,(tree->bottom_ul));}
+//                break;
+//            case 7:
+//            {getPointCollisions (a,(tree->bottom_ur));}
+//                break;
+            default:
+                break;
         }
 
-        if (a.x >= tree->top_dr->x && a.x <= tree->top_dr->x+tree->top_dr->width &&
-            a.y >= tree->top_dr->y && a.y <= tree->top_dr->y+tree->top_dr->height &&
-            a.z >= tree->top_dr->z && a.z <= tree->top_dr->z+tree->top_dr->depth
-           )
-        {
-            getPointCollisions (a,(tree->top_dr));
-        }
+//        // find in which octant does the 'a' point lies into
 
-        if (a.x >= tree->top_ul->x && a.x <= tree->top_ul->x+tree->top_ul->width &&
-            a.y >= tree->top_ul->y && a.y <= tree->top_ul->y+tree->top_ul->height &&
-            a.z >= tree->top_ul->z && a.z <= tree->top_ul->z+tree->top_ul->depth
-            )
-        {
-            getPointCollisions (a,(tree->top_ul));
-        }
+//        //TOP
 
-        if (a.x >= tree->top_ur->x && a.x <= tree->top_ur->x+tree->top_ur->width &&
-            a.y >= tree->top_ur->y && a.y <= tree->top_ur->y+tree->top_ur->height &&
-            a.z >= tree->top_ur->z && a.z <= tree->top_ur->z+tree->top_ur->depth
-            )
-        {
-            getPointCollisions (a,(tree->top_ur));
-        }
+//        if (a.x >= tree->top_dl->x && a.x <= tree->top_dl->x+tree->top_dl->width &&
+//            a.y >= tree->top_dl->y && a.y <= tree->top_dl->y+tree->top_dl->height &&
+//            a.z >= tree->top_dl->z && a.z <= tree->top_dl->z+tree->top_dl->depth
+//            )
+//        {
+//            //and dig one level down to check if 'a' is one of the leaf nodes of this tree->top_dl, so as to query all of its neighbours too
+//            getPointCollisions (a,(tree->top_dl));
+//        }
 
-        //BOTTOM
+//        if (a.x >= tree->top_dr->x && a.x <= tree->top_dr->x+tree->top_dr->width &&
+//            a.y >= tree->top_dr->y && a.y <= tree->top_dr->y+tree->top_dr->height &&
+//            a.z >= tree->top_dr->z && a.z <= tree->top_dr->z+tree->top_dr->depth
+//           )
+//        {
+//            getPointCollisions (a,(tree->top_dr));
+//        }
 
-        if (a.x >= tree->top_dl->x && a.x <= tree->top_dl->x+tree->top_dl->width &&
-            a.y >= tree->top_dl->y && a.y <= tree->top_dl->y+tree->top_dl->height &&
-            a.z >= tree->top_dl->z && a.z <= tree->top_dl->z+tree->top_dl->depth
-            )
-        {
-            getPointCollisions (a,(tree->top_dl));
-        }
+//        if (a.x >= tree->top_ul->x && a.x <= tree->top_ul->x+tree->top_ul->width &&
+//            a.y >= tree->top_ul->y && a.y <= tree->top_ul->y+tree->top_ul->height &&
+//            a.z >= tree->top_ul->z && a.z <= tree->top_ul->z+tree->top_ul->depth
+//            )
+//        {
+//            getPointCollisions (a,(tree->top_ul));
+//        }
 
-        if (a.x >= tree->bottom_dr->x && a.x <= tree->bottom_dr->x+tree->bottom_dr->width &&
-            a.y >= tree->bottom_dr->y && a.y <= tree->bottom_dr->y+tree->bottom_dr->height &&
-            a.z >= tree->bottom_dr->z && a.z <= tree->bottom_dr->z+tree->bottom_dr->depth
-           )
-        {
-            getPointCollisions (a,(tree->bottom_dr));
-        }
+//        if (a.x >= tree->top_ur->x && a.x <= tree->top_ur->x+tree->top_ur->width &&
+//            a.y >= tree->top_ur->y && a.y <= tree->top_ur->y+tree->top_ur->height &&
+//            a.z >= tree->top_ur->z && a.z <= tree->top_ur->z+tree->top_ur->depth
+//            )
+//        {
+//            getPointCollisions (a,(tree->top_ur));
+//        }
 
-        if (a.x >= tree->bottom_ul->x && a.x <= tree->bottom_ul->x+tree->bottom_ul->width &&
-            a.y >= tree->bottom_ul->y && a.y <= tree->bottom_ul->y+tree->bottom_ul->height &&
-            a.z >= tree->bottom_ul->z && a.z <= tree->bottom_ul->z+tree->bottom_ul->depth
-            )
-        {
-            getPointCollisions (a,(tree->bottom_ul));
-        }
+//        //BOTTOM
 
-        if (a.x >= tree->bottom_ur->x && a.x <= tree->bottom_ur->x+tree->bottom_ur->width &&
-            a.y >= tree->bottom_ur->y && a.y <= tree->bottom_ur->y+tree->bottom_ur->height &&
-            a.z >= tree->bottom_ur->z && a.z <= tree->bottom_ur->z+tree->bottom_ur->depth
-            )
-        {
-            getPointCollisions (a,(tree->bottom_ur));
-        }
+//        if (a.x >= tree->top_dl->x && a.x <= tree->top_dl->x+tree->top_dl->width &&
+//            a.y >= tree->top_dl->y && a.y <= tree->top_dl->y+tree->top_dl->height &&
+//            a.z >= tree->top_dl->z && a.z <= tree->top_dl->z+tree->top_dl->depth
+//            )
+//        {
+//            getPointCollisions (a,(tree->top_dl));
+//        }
+
+//        if (a.x >= tree->bottom_dr->x && a.x <= tree->bottom_dr->x+tree->bottom_dr->width &&
+//            a.y >= tree->bottom_dr->y && a.y <= tree->bottom_dr->y+tree->bottom_dr->height &&
+//            a.z >= tree->bottom_dr->z && a.z <= tree->bottom_dr->z+tree->bottom_dr->depth
+//           )
+//        {
+//            getPointCollisions (a,(tree->bottom_dr));
+//        }
+
+//        if (a.x >= tree->bottom_ul->x && a.x <= tree->bottom_ul->x+tree->bottom_ul->width &&
+//            a.y >= tree->bottom_ul->y && a.y <= tree->bottom_ul->y+tree->bottom_ul->height &&
+//            a.z >= tree->bottom_ul->z && a.z <= tree->bottom_ul->z+tree->bottom_ul->depth
+//            )
+//        {
+//            getPointCollisions (a,(tree->bottom_ul));
+//        }
+
+//        if (a.x >= tree->bottom_ur->x && a.x <= tree->bottom_ur->x+tree->bottom_ur->width &&
+//            a.y >= tree->bottom_ur->y && a.y <= tree->bottom_ur->y+tree->bottom_ur->height &&
+//            a.z >= tree->bottom_ur->z && a.z <= tree->bottom_ur->z+tree->bottom_ur->depth
+//            )
+//        {
+//            getPointCollisions (a,(tree->bottom_ur));
+//        }
 
 
 
@@ -339,7 +378,7 @@ void NGLScene::deleteAreaByAreaElements(Octree &tree)
 
 
 
-    //Comment out some of the following Octree collision regions and PushButton on the Gui, to delete some of the 1st level quatree splits (1 of the 4 first quadrants of the Octree)
+    //Comment out some of the following Octree collision regions and PushButton on the Gui, to delete some of the 1st level Octree splits (1 of the 4 first quadrants of the Octree)
     if (tree.top_dl!=NULL)
     {
         update ();
