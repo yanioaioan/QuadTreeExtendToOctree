@@ -15,19 +15,20 @@
 
 //unsigned static int maxCapacity;
 
-const static int totalCollisionObjects=10;
+const static int totalCollisionObjects=5;
 
 #define epsilon 1.0E-8
 
 
  struct Point
  {
-     int x,y,z;
-     int id;
+     float x,y,z;
+     float id;
+     float radius;
 
-     Point(int _id,int _x,int _y, int _z):id(_id),x(_x),y(_y),z(_z){}
+     Point(float _id,float _x,float _y, float _z):id(_id),x(_x),y(_y),z(_z),radius(2.0f){}
 
-     bool AreSame(int a, int b)const
+     bool AreSame(float a, float b)const
      {
          bool val=fabs(a - b) < epsilon;
          return val;
@@ -58,7 +59,7 @@ const static int totalCollisionObjects=10;
      Octree *back_ur =NULL;
      float x,y,z, width, height, depth;
 
-     Octree(int _x,int _y,int _z, int _width,int _height, int _depth)
+     Octree(float _x,float _y,float _z, float _width,float _height, float _depth)
      {
          x =_x;
          y =_y;
@@ -75,7 +76,7 @@ const static int totalCollisionObjects=10;
      //If points are evenly distributed then , the more subtrees the better as we end up with fewer tests.
      //On the contrary, if we have a non even distribution for which we test against, then this probably means we are
      //creating too much overhead for no reason at all, as we split space and don't put/allocate points in
-     unsigned int maxCapacity=totalCollisionObjects/spliInNodes;
+     unsigned int maxCapacity=2;//totalCollisionObjects/spliInNodes;
 
      int countBranches()
      {
@@ -84,6 +85,8 @@ const static int totalCollisionObjects=10;
                )
          {
               treesize+=container.size();
+              return 0;
+
          }
          if (front_dl!=NULL && front_dl->container.size()!=0)
              front_dl->countBranches();
@@ -109,9 +112,9 @@ const static int totalCollisionObjects=10;
 
      void split()
      {
-         int halfwidth =width /2;
-         int halfheight =height /2;
-         int halfdepth = depth /2;
+         float halfwidth =width /2;
+         float halfheight =height /2;
+         float halfdepth = depth /2;
          //create 4 sub-trees based on the width&height of the parent Octree
 
          //top quad
@@ -362,6 +365,8 @@ protected:
 
     void findTreeElements(Octree &tree);
     void deleteAreaByAreaElements(Octree &tree);
+    void drawBranches(const Octree *tree);
+
 
     void paintGL ();
 
