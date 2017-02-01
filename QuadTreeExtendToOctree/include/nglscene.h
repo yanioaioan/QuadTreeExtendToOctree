@@ -64,14 +64,14 @@ const static int totalCollisionObjects=5;
      Octree(const Octree& t){x=t.x; y=t.y; z=t.z;}
 
      std::vector<Point>container;
-     std::unique_ptr<Octree> front_dl =NULL;
-     std::unique_ptr<Octree> front_dr =NULL;
-     std::unique_ptr<Octree> front_ul =NULL;
-     std::unique_ptr<Octree> front_ur =NULL;
-     std::unique_ptr<Octree> back_dl =NULL;
-     std::unique_ptr<Octree> back_dr =NULL;
-     std::unique_ptr<Octree> back_ul =NULL;
-     std::unique_ptr<Octree> back_ur =NULL;
+     std::shared_ptr<Octree> front_dl =NULL;
+     std::shared_ptr<Octree> front_dr =NULL;
+     std::shared_ptr<Octree> front_ul =NULL;
+     std::shared_ptr<Octree> front_ur =NULL;
+     std::shared_ptr<Octree> back_dl =NULL;
+     std::shared_ptr<Octree> back_dr =NULL;
+     std::shared_ptr<Octree> back_ul =NULL;
+     std::shared_ptr<Octree> back_ur =NULL;
      float x,y,z, width, height, depth;
      int treeId;
 
@@ -385,7 +385,7 @@ protected:
     void resizeGL (QResizeEvent *_event);
     void loadMatricesToShader(ngl::Transformation &_transform, const ngl::Mat4 &_globalTx, ngl::Camera *_cam, ngl::Colour &c);
     void detectAndResolveCollisions(Point &a, std::vector<Point> *collisionAreaPoints, const float &width, const float &height);
-    void getPointCollisions(const Point &a, std::unique_ptr<Octree> tree);
+    void getPointCollisions(const Point &a, std::shared_ptr<Octree> tree);
 
     int getOctantContainingPoint(Point &point, Octree *tree) const ;
 
@@ -393,7 +393,7 @@ protected:
     void deleteAreaByAreaElements(Octree &tree);
     void checkWallCollision(/*Octree *tree,*/ Point &point);
 
-    void drawBranches(std::unique_ptr<Octree> tree);
+    void drawBranches(std::shared_ptr<Octree> tree);
 
 
     void paintGL ();
@@ -461,7 +461,7 @@ private:
     ngl::Transformation m_transform;
     ngl::Text *m_text;
 
-    std::unique_ptr<Octree> tree;
+    std::shared_ptr<Octree> tree;
 
 
 

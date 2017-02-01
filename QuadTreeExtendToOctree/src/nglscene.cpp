@@ -189,7 +189,7 @@ int NGLScene::getOctantContainingPoint( Point& point, Octree *tree) const {
 
 
 //This method used to be a member function of Octree Structure
-void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
+void NGLScene::getPointCollisions(const Point &a, std::shared_ptr<Octree> tree)
 {
 
 
@@ -406,7 +406,7 @@ void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
             )
         {
             //and dig one level down to check if 'a' is one of the leaf nodes of this tree->front_dl, so as to query all of its neighbours too
-            getPointCollisions (a,std::move(tree->front_dl));
+            getPointCollisions (a,(tree->front_dl));
         }
 
         if (a.x >= tree->front_dr->x && a.x <= tree->front_dr->x+tree->front_dr->width &&
@@ -414,7 +414,7 @@ void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
             a.z >= tree->front_dr->z && a.z <= tree->front_dr->z+tree->front_dr->depth
            )
         {
-            getPointCollisions (a,std::move(tree->front_dr));
+            getPointCollisions (a,(tree->front_dr));
         }
 
         if (a.x >= tree->front_ul->x && a.x <= tree->front_ul->x+tree->front_ul->width &&
@@ -422,7 +422,7 @@ void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
             a.z >= tree->front_ul->z && a.z <= tree->front_ul->z+tree->front_ul->depth
             )
         {
-            getPointCollisions (a,std::move(tree->front_ul));
+            getPointCollisions (a,(tree->front_ul));
         }
 
         if (a.x >= tree->front_ur->x && a.x <= tree->front_ur->x+tree->front_ur->width &&
@@ -430,7 +430,7 @@ void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
             a.z >= tree->front_ur->z && a.z <= tree->front_ur->z+tree->front_ur->depth
             )
         {
-            getPointCollisions (a,std::move(tree->front_ur));
+            getPointCollisions (a,(tree->front_ur));
         }
 
         //BOTTOM
@@ -440,7 +440,7 @@ void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
             a.z >= tree->back_dl->z && a.z <= tree->back_dl->z+tree->back_dl->depth
             )
         {
-            getPointCollisions (a,std::move(tree->back_dl));
+            getPointCollisions (a,(tree->back_dl));
         }
 
         if (a.x >= tree->back_dr->x && a.x <= tree->back_dr->x+tree->back_dr->width &&
@@ -448,7 +448,7 @@ void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
             a.z >= tree->back_dr->z && a.z <= tree->back_dr->z+tree->back_dr->depth
            )
         {
-            getPointCollisions (a,std::move(tree->back_dr));
+            getPointCollisions (a,(tree->back_dr));
         }
 
         if (a.x >= tree->back_ul->x && a.x <= tree->back_ul->x+tree->back_ul->width &&
@@ -456,7 +456,7 @@ void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
             a.z >= tree->back_ul->z && a.z <= tree->back_ul->z+tree->back_ul->depth
             )
         {
-            getPointCollisions (a,std::move(tree->back_ul));
+            getPointCollisions (a,(tree->back_ul));
         }
 
         if (a.x >= tree->back_ur->x && a.x <= tree->back_ur->x+tree->back_ur->width &&
@@ -464,7 +464,7 @@ void NGLScene::getPointCollisions(const Point &a, std::unique_ptr<Octree> tree)
             a.z >= tree->back_ur->z && a.z <= tree->back_ur->z+tree->back_ur->depth
             )
         {
-            getPointCollisions (a,std::move(tree->back_ur));
+            getPointCollisions (a,(tree->back_ur));
         }
 
 
@@ -554,7 +554,7 @@ void NGLScene::checkWallCollision(Point &point)
     }
 }
 
-void NGLScene::drawBranches(std::unique_ptr<Octree> tree)
+void NGLScene::drawBranches(std::shared_ptr<Octree> tree)
 {
 
     if ( (tree->front_dl==NULL && tree->front_dr==NULL && tree->front_ul==NULL && tree->front_ur==NULL)
@@ -606,28 +606,28 @@ void NGLScene::drawBranches(std::unique_ptr<Octree> tree)
          return ;
     }
     if (tree->front_dl!=NULL && tree->front_dl->container.size()!=0)
-        drawBranches(std::move(tree->front_dl));
+        drawBranches((tree->front_dl));
 
     if (tree->front_dr!=NULL&&tree->front_dr->container.size()!=0)
-        drawBranches(std::move(tree->front_dr));
+        drawBranches((tree->front_dr));
 
      if (tree->front_ul!=NULL&&tree->front_ul->container.size()!=0)
-        drawBranches(std::move(tree->front_ul));
+        drawBranches((tree->front_ul));
 
      if (tree->front_ur!=NULL&&tree->front_ur->container.size()!=0)
-        drawBranches(std::move(tree->front_ur));
+        drawBranches((tree->front_ur));
 
      if (tree->back_dl!=NULL&&tree->back_dl->container.size()!=0)
-        drawBranches(std::move(tree->back_dl));
+        drawBranches((tree->back_dl));
 
      if (tree->back_dr!=NULL&&tree->back_dr->container.size()!=0)
-        drawBranches(std::move(tree->back_dr));
+        drawBranches((tree->back_dr));
 
      if (tree->back_ul!=NULL&&tree->back_ul->container.size()!=0)
-        drawBranches(std::move(tree->back_ul));
+        drawBranches((tree->back_ul));
 
      if (tree->back_ur!=NULL&&tree->back_ur->container.size()!=0)
-        drawBranches(std::move(tree->back_ur));
+        drawBranches((tree->back_ur));
 }
 
 #include <ngl/NGLStream.h>
@@ -657,7 +657,7 @@ void NGLScene::paintGL ()
     //reconstruct all the time
     treesize=0;
     tree->nexttreeID=0;
-    tree.reset(nullptr);
+//    tree.reset(nullptr);
     tree.reset(new Octree(0,0,0,treewidth,treeheight,treedepth));
     for(int i=0;i<totalCollisionObjects;i++)
     {
@@ -681,17 +681,17 @@ void NGLScene::paintGL ()
     //draw all branches of the tree
     tree->countBranches();
 
-    //std::cout<<"treesize="<<treesize<<'\n';
+    std::cout<<"counted treesize="<<treesize<<'\n';
 
     //Solve collisions
     for(size_t i=0;i<totalCollisionObjects;i++)
     {
-       getPointCollisions(treePositions[i],std::move(tree));
+       getPointCollisions(treePositions[i],(tree));
     }
 
     //Draw updated Tree
     treesize=0;
-    drawBranches(std::move(tree));
+    drawBranches((tree));
 
 
         QString text;
