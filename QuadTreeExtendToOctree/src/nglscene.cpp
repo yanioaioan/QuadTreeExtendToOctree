@@ -12,8 +12,7 @@
 //Initialize Octree
 int treewidth=totalCollisionObjects*4;int treeheight=totalCollisionObjects*4;int treedepth=totalCollisionObjects*4;
 
-Octree tree(0,0,0,treewidth, treeheight, treedepth);
-
+int Octree::nexttreeID=0;
 
 //----------------------------------------------------------------------------------------------------------------------
 /// @brief the increment for x/y translation with mouse movement
@@ -47,14 +46,14 @@ NGLScene::NGLScene()
 
 NGLScene::~NGLScene()
 {
-    std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
+    //std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
 }
 
 void NGLScene::initializeGL ()
 {
     ngl::NGLInit::instance();
     glClearColor (0.4,0.4,0.4,1);
-    std::cout<<"Initializing NGL\n";
+    //std::cout<<"Initializing NGL\n";
 
     ngl::Vec3 from(50,50,50);ngl::Vec3 to(20,20,0);ngl::Vec3 up(0,1,0);
     m_cam = new ngl::Camera(from,to,up);
@@ -79,6 +78,8 @@ void NGLScene::initializeGL ()
     // as re-size is not explicitly called we need to do this.
    glViewport(0,0,width(),height());
 
+   tree.reset(new Octree(0,0,0,treewidth,treeheight,treedepth));
+
     //Fill random 2D Values to Octree
     for(int i=0;i<totalCollisionObjects;i++)
     {
@@ -90,12 +91,12 @@ void NGLScene::initializeGL ()
 //       x=i;y=0;z=0;
 
        //save positions
-       Point t(i,x,y,z);
+       Point t(i,x,y,z,0.1,0.1,0.1);
        treePositions.push_back (t);
 
 
-       Point tempPoint(i,x,y,z);//or insert x,y instead of i,i to create some randomness
-       tree.addPoint(tempPoint);
+       Point tempPoint(i,x,y,z,0.1,0.1,0.1);//or insert x,y instead of i,i to create some randomness
+       tree->addPoint(tempPoint);
     }
 
 
@@ -239,23 +240,24 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
          && (tree->back_dl==NULL && tree->back_dr==NULL && tree->back_ul==NULL && tree->back_ur==NULL)
           )
     {
-
+        //std::cout<<"tree->treeID= "<<tree->treeId<<'\n';
+        //std::cout<<"tree->container.size() = "<<tree->container.size()<<'\n';
         if(tree->container.size()<=1)
         {
-            tree->container[0].x=0;
-            tree->container[0].y=0;
-            tree->container[0].z=0;
+//            tree->container[0].x=0;
+//            tree->container[0].y=0;
+//            tree->container[0].z=0;
 
             return;
         }
-        else//iterate the particles of this container (n squared )
+        else//iterate the particles of this container (n squared ) and perform collision detection and response
         {
             for(int i=0;i<tree->container.size();++i)
             {
 
-                tree->container[i].x=0;
-                tree->container[i].y=0;
-                tree->container[i].z=0;
+//                tree->container[i].x=0;
+//                tree->container[i].y=0;
+//                tree->container[i].z=0;
 
                 ngl::Vec3 p1(tree->container[i].x,tree->container[i].y,tree->container[i].z);
 
@@ -275,23 +277,23 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
                             float dist=tree->container[i].radius + tree->container[j].radius - (p1-p2).length();
                             ngl::Vec3 norm=dist*N;
 
+
 //                            //collision detected/response, so move each other apart randomly towards all three directions
-//                            tree->container[i].x+=norm.m_x;
-//                            tree->container[i].y+=norm.m_y;
-//                            tree->container[i].z+=norm.m_z;
+                            tree->container[i].x+=norm.m_x;
+                            tree->container[i].y+=norm.m_y;
+                            tree->container[i].z+=norm.m_z;
 
-//                            tree->container[j].x+=norm.m_x;
-//                            tree->container[j].y+=norm.m_y;
-//                            tree->container[j].z+=norm.m_z;
-
-
+                            tree->container[j].x-=norm.m_x;
+                            tree->container[j].y-=norm.m_y;
+                            tree->container[j].z-=norm.m_z;
 
 
                         }
                     }
 
-
                 }
+
+
             }
         }
 
@@ -300,14 +302,14 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 //        std::vector<Point>::iterator element=std::find(tree->container.begin(), tree->container.end(), a);
 
 
-//        std::cout<<"searching for particle with ID="<<a.id<<'\n';
+//        //std::cout<<"searching for particle with ID="<<a.id<<'\n';
 
 //        if( element !=tree->container.end ())// 'a' element found!!
 //        {
 
-//            std::cout<<"FOUND to have neighbours!!"<<'\n';
+//            //std::cout<<"FOUND to have neighbours!!"<<'\n';
 
-//            std::cout<<"drawing neighbours of particle_with id="<<a.id<<", at pos:("<<a.x<<", "<<a.y<<", "<<a.z<<")"<<'\n';
+//            //std::cout<<"drawing neighbours of particle_with id="<<a.id<<", at pos:("<<a.x<<", "<<a.y<<", "<<a.z<<")"<<'\n';
 
 //            /////////////////////       !!!!!!!!!!!!!!!!!
 //            /// \Section Added - For each element  of the tree that we search, we print the whole container using a another colour.
@@ -319,14 +321,14 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 //            //SO..this &tree->container that contains the 'a'point, is the one to draw with this specifiv collisionAreaColour
 //            std::vector<Point> *collisionAreaPoints = &tree->container;
 
-////            std::cout<<"neighbours of point at position("<<a.x<<","<<a.y<<") are="<<collisionAreaPoints->size()<<" out of all "<<totalCollisionObjects<<'\n';
+////            //std::cout<<"neighbours of point at position("<<a.x<<","<<a.y<<") are="<<collisionAreaPoints->size()<<" out of all "<<totalCollisionObjects<<'\n';
 
 //            //Check collisions and push cube that collide with eachother further apart
 ////            detectAndResolveCollisions( (*element), collisionAreaPoints, tree->width, tree->height);
 
 //            for(size_t i=0;i<collisionAreaPoints->size ();i++)
 //            {
-//                std::cout<<"neighbour id:"<<(*collisionAreaPoints)[i].id<<'\n';
+//                //std::cout<<"neighbour id:"<<(*collisionAreaPoints)[i].id<<'\n';
 
 //                m_transform.setPosition ( (*collisionAreaPoints)[i].x/*/totalCollisionObjects*/ ,i*2*(*collisionAreaPoints)[i].y/*/totalCollisionObjects*/, (*collisionAreaPoints)[i].z);
 ////                m_transform.setScale (0.01, 0.01, 1);
@@ -342,8 +344,8 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 //        }
 //        else
 //        {
-//            std::cout<<"NOT FOUND  to have neighbours!!!!..so draw it on  its own"<<'\n';
-//            std::cout<<"particle id:"<<a.id<<", at pos:("<<a.x<<", "<<a.y<<", "<<a.z<<")"<<'\n';'\n';
+//            //std::cout<<"NOT FOUND  to have neighbours!!!!..so draw it on  its own"<<'\n';
+//            //std::cout<<"particle id:"<<a.id<<", at pos:("<<a.x<<", "<<a.y<<", "<<a.z<<")"<<'\n';'\n';
 
 //            ngl::Colour collisionAreaColour(ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), 1);
 //            m_transform.setPosition(a.x, a.y, a.z);
@@ -364,30 +366,107 @@ void NGLScene::getPointCollisions(const Point &a, Octree *tree)
 //
 
 
-        int xsign = a.x>tree->width/2;
-        int ysign = a.y>tree->height/2;
-        int zsign = a.z>tree->depth/2;
+//        int xsign = a.x>tree->width/2;
+//        int ysign = a.y>tree->height/2;
+//        int zsign = a.z>tree->depth/2;
 
-        int octant = xsign + 2*ysign + 4*zsign;
-//        std::cout<<"octant="<<octant<<'\n';
+//        int octant = xsign + 2*ysign + 4*zsign;
+//        //std::cout<<"octant="<<octant<<'\n';
+
+
+        //SOMETHING IS NOT QUITE WORKING HERE (probably wrong octant assignment),
+        //So, need to investigate at some point ,
+        //(however the manual octant check after that works just fine, so use this for now at least)
 
         // find in which octant does the 'a' point lies into
-        if (octant==0)
+//        if (octant==0)
+//            getPointCollisions (a,(tree->front_dl));
+//        if (octant==1)
+//            getPointCollisions (a,(tree->front_dr));
+//        if (octant==2)
+//            getPointCollisions (a,(tree->front_ul));
+//        if (octant==3)
+//            getPointCollisions (a,(tree->front_ur));
+//        if (octant==4)
+//            getPointCollisions (a,(tree->back_dl));
+//        if (octant==5)
+//            getPointCollisions (a,(tree->back_dr));
+//        if (octant==6)
+//            getPointCollisions (a,(tree->back_ul));
+//        if (octant==7)
+//            getPointCollisions (a,(tree->back_ur));
+
+
+
+        //TOP
+
+        if (a.x >= tree->front_dl->x && a.x <= tree->front_dl->x+tree->front_dl->width &&
+            a.y >= tree->front_dl->y && a.y <= tree->front_dl->y+tree->front_dl->height &&
+            a.z >= tree->front_dl->z && a.z <= tree->front_dl->z+tree->front_dl->depth
+            )
+        {
+            //and dig one level down to check if 'a' is one of the leaf nodes of this tree->front_dl, so as to query all of its neighbours too
             getPointCollisions (a,(tree->front_dl));
-        if (octant==1)
+        }
+
+        if (a.x >= tree->front_dr->x && a.x <= tree->front_dr->x+tree->front_dr->width &&
+            a.y >= tree->front_dr->y && a.y <= tree->front_dr->y+tree->front_dr->height &&
+            a.z >= tree->front_dr->z && a.z <= tree->front_dr->z+tree->front_dr->depth
+           )
+        {
             getPointCollisions (a,(tree->front_dr));
-        if (octant==2)
+        }
+
+        if (a.x >= tree->front_ul->x && a.x <= tree->front_ul->x+tree->front_ul->width &&
+            a.y >= tree->front_ul->y && a.y <= tree->front_ul->y+tree->front_ul->height &&
+            a.z >= tree->front_ul->z && a.z <= tree->front_ul->z+tree->front_ul->depth
+            )
+        {
             getPointCollisions (a,(tree->front_ul));
-        if (octant==3)
+        }
+
+        if (a.x >= tree->front_ur->x && a.x <= tree->front_ur->x+tree->front_ur->width &&
+            a.y >= tree->front_ur->y && a.y <= tree->front_ur->y+tree->front_ur->height &&
+            a.z >= tree->front_ur->z && a.z <= tree->front_ur->z+tree->front_ur->depth
+            )
+        {
             getPointCollisions (a,(tree->front_ur));
-        if (octant==4)
+        }
+
+        //BOTTOM
+
+        if (a.x >= tree->back_dl->x && a.x <= tree->back_dl->x+tree->back_dl->width &&
+            a.y >= tree->back_dl->y && a.y <= tree->back_dl->y+tree->back_dl->height &&
+            a.z >= tree->back_dl->z && a.z <= tree->back_dl->z+tree->back_dl->depth
+            )
+        {
             getPointCollisions (a,(tree->back_dl));
-        if (octant==5)
+        }
+
+        if (a.x >= tree->back_dr->x && a.x <= tree->back_dr->x+tree->back_dr->width &&
+            a.y >= tree->back_dr->y && a.y <= tree->back_dr->y+tree->back_dr->height &&
+            a.z >= tree->back_dr->z && a.z <= tree->back_dr->z+tree->back_dr->depth
+           )
+        {
             getPointCollisions (a,(tree->back_dr));
-        if (octant==6)
+        }
+
+        if (a.x >= tree->back_ul->x && a.x <= tree->back_ul->x+tree->back_ul->width &&
+            a.y >= tree->back_ul->y && a.y <= tree->back_ul->y+tree->back_ul->height &&
+            a.z >= tree->back_ul->z && a.z <= tree->back_ul->z+tree->back_ul->depth
+            )
+        {
             getPointCollisions (a,(tree->back_ul));
-        if (octant==7)
+        }
+
+        if (a.x >= tree->back_ur->x && a.x <= tree->back_ur->x+tree->back_ur->width &&
+            a.y >= tree->back_ur->y && a.y <= tree->back_ur->y+tree->back_ur->height &&
+            a.z >= tree->back_ur->z && a.z <= tree->back_ur->z+tree->back_ur->depth
+            )
+        {
             getPointCollisions (a,(tree->back_ur));
+        }
+
 
     }
 
@@ -463,24 +542,60 @@ void NGLScene::deleteAreaByAreaElements(Octree &tree)
 
 }
 
-void NGLScene::drawBranches(const Octree *tree)
+
+void NGLScene::checkWallCollision(Point &point)
+{
+    //when cubes out of the root bounding voliume, reverse velocity
+    if ( (point.x>10) || (point.y>10) || (point.z>10) || (point.x<-10) || (point.y<-10) || (point.z<-10) )
+    {
+        point.vx = - point.vx;
+        point.vy = - point.vy;
+        point.vz = - point.vz;
+    }
+}
+
+void NGLScene::drawBranches(Octree *tree)
 {
 
-    if ( (tree->front_dl==NULL &&tree->front_dr==NULL &&tree->front_ul==NULL &&tree->front_ur==NULL)
-         && (tree->back_dl==NULL &&tree->back_dr==NULL &&tree->back_ul==NULL &&tree->back_ur==NULL)
+    if ( (tree->front_dl==NULL && tree->front_dr==NULL && tree->front_ul==NULL && tree->front_ur==NULL)
+         && (tree->back_dl==NULL && tree->back_dr==NULL && tree->back_ul==NULL && tree->back_ur==NULL)
           )
     {
          treesize+=tree->container.size();
 
-
          ngl::Colour collisionNeighbourhoodAreaColour(ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), 1);
          for(int i=0;i<tree->container.size();i++)
          {
+
+             //update pos based on artificial velocity
+             //std::cout<<"moving..particle ID "<<tree->container[i].id<<'\n';
+
+             tree->container[i].x+=0.1;
+//             tree->container[i].y+=tree->container[i].vy;
+//             tree->container[i].z+=tree->container[i].vz;
+
+             //check wall collision
+
+             checkWallCollision(/*tree,*/tree->container[i]);
+
+
              //Draw each particle
              static float rot=0;
-             m_transform.setRotation(0,i*rot,0);rot+=20;
+             m_transform.setRotation(0,rot,0);rot+=20;
              m_transform.setPosition (tree->container[i].x, tree->container[i].y, tree->container[i].z);
 
+             //make sure we are updating the treePositions vector for each one too
+             //check where the  tree->container[i] is on the treePositions vector and update that particular element ot the treePositions vector
+             std::vector<Point>::iterator element=std::find(treePositions.begin(), treePositions.end(),  tree->container[i]);
+             if ( element !=treePositions.end ())// 'a' element found!!
+             {
+                 // now update the appropriate element on the treePositions vector (use the index of where it was found on the treePositions vectors)
+                 auto index = std::distance(treePositions.begin(), element);
+                 // update that particular element ot the treePositions vector
+                 treePositions[index] =tree->container[i];
+             }
+
+             //now everything according to tree->container[i]
              loadMatricesToShader (m_transform,m_mouseGlobalTX, m_cam, collisionNeighbourhoodAreaColour);
              ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance ();
              prim->draw ("cube");
@@ -505,14 +620,18 @@ void NGLScene::drawBranches(const Octree *tree)
 
      if (tree->back_dl!=NULL&&tree->back_dl->container.size()!=0)
         drawBranches(tree->back_dl);
+
      if (tree->back_dr!=NULL&&tree->back_dr->container.size()!=0)
         drawBranches(tree->back_dr);
+
      if (tree->back_ul!=NULL&&tree->back_ul->container.size()!=0)
         drawBranches(tree->back_ul);
+
      if (tree->back_ur!=NULL&&tree->back_ur->container.size()!=0)
         drawBranches(tree->back_ur);
 }
 
+#include <ngl/NGLStream.h>
 void NGLScene::paintGL ()
 {
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
@@ -535,21 +654,45 @@ void NGLScene::paintGL ()
     m_mouseGlobalTX.m_m[3][2] = m_modelPos.m_z;
 
 
+
+    //reconstruct all the time
+    treesize=0;
+    tree->nexttreeID=0;
+    tree.reset(nullptr);
+    tree.reset(new Octree(0,0,0,treewidth,treeheight,treedepth));
+    for(int i=0;i<totalCollisionObjects;i++)
+    {
+       //update x,y,z with position from the previous frame
+       float x = treePositions[i].x;
+       float y = treePositions[i].y;
+       float z = treePositions[i].z;
+
+       ngl::Vec3 tVel(treePositions[i].vx,treePositions[i].vy,treePositions[i].vz);
+
+       if(treePositions[i].id==4)
+       {
+           std::cout<<"tVel="<<tVel<<'\n';
+       }
+
+       Point tempPoint(i,x,y,z,tVel.m_x,tVel.m_y,tVel.m_z);//or insert x,y instead of i,i to create some randomness
+       tree->addPoint(tempPoint);
+    }
+
     treesize=0;
     //draw all branches of the tree
-    tree.countBranches();
+    tree->countBranches();
 
-    std::cout<<"treesize="<<treesize<<'\n';
+    //std::cout<<"treesize="<<treesize<<'\n';
 
     //Solve collisions
-    for(size_t i=0;i<treePositions.size ();i++)
+    for(size_t i=0;i<totalCollisionObjects;i++)
     {
-       getPointCollisions(treePositions[i],&tree);
+       getPointCollisions(treePositions[i],tree.get());
     }
 
     //Draw updated Tree
     treesize=0;
-    drawBranches(&tree);
+    drawBranches(tree.get());
 
 
         QString text;
@@ -565,11 +708,11 @@ void NGLScene::paintGL ()
 void NGLScene::testButtonClicked(bool b)
 {
     emit clicked (b);
-    std::cout<<"Button Clicked - manual signal-slot connection"<<std::endl;
+    //std::cout<<"Button Clicked - manual signal-slot connection"<<std::endl;
     // m_rColor=1;
 
     //delete some of the 1st level nodes of the tree
-    deleteAreaByAreaElements(tree);
+//    deleteAreaByAreaElements(tree);
 
     update ();
 }

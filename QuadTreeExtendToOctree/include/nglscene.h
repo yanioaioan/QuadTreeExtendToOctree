@@ -12,12 +12,14 @@
 #include <QOpenGLWidget>
 
 #include <nglscene.h>
+#include <ngl/Random.h>
+#include <memory>
 
 //unsigned static int maxCapacity;
 
 const static int totalCollisionObjects=5;
 
-#define epsilon 1.0E-8
+#define epsilon 1.0E-2
 
 
  struct Point
@@ -25,8 +27,16 @@ const static int totalCollisionObjects=5;
      float x,y,z;
      float id;
      float radius;
+     float vx,vy,vz;
 
-     Point(float _id,float _x,float _y, float _z):id(_id),x(_x),y(_y),z(_z),radius(2.0f){}
+
+     Point(){}
+     Point(float _id,float _x,float _y, float _z, float _vx,float _vy, float _vz ):id(_id), x(_x),y(_y),z(_z), vx(_vx),vy(_vy),vz(_vz)
+     {
+         radius=1.0f;
+
+             //velocity needs to be retained from the previous frame and updated accordingly
+     }
 
      bool AreSame(float a, float b)const
      {
@@ -35,14 +45,19 @@ const static int totalCollisionObjects=5;
      }
 
      bool operator==(const Point& a ) const {
-//             return AreSame(a.x, x) && AreSame(a.y, y) && AreSame(a.z, z);
-         return a.x==x && a.y==y && a.z==z;
+
+//         return a.x==x && a.y==y && a.z==z;
+//         return AreSame(a.x, x) && AreSame(a.y, y) && AreSame(a.z, z);
+
+         //compare beased on id
+         return a.id ==id;
          }
 
  };
 
-
  static size_t treesize;
+
+
 
  typedef struct Octree
  {
@@ -58,9 +73,15 @@ const static int totalCollisionObjects=5;
      Octree *back_ul =NULL;
      Octree *back_ur =NULL;
      float x,y,z, width, height, depth;
+     int treeId;
+
+     static int nexttreeID;
 
      Octree(float _x,float _y,float _z, float _width,float _height, float _depth)
      {
+
+         nexttreeID++;
+         treeId=nexttreeID;
          x =_x;
          y =_y;
          z = _z;
@@ -117,13 +138,13 @@ const static int totalCollisionObjects=5;
          float halfdepth = depth /2;
          //create 4 sub-trees based on the width&height of the parent Octree
 
-         //top quad
+         //front quad
          front_dl =new Octree(x,y,z, halfwidth, halfheight,halfdepth);
          front_dr =new Octree(x +halfwidth,y, z, halfwidth,halfheight,halfdepth);
          front_ul =new Octree(x,y +halfheight, z, halfwidth,halfheight,halfdepth);
          front_ur =new Octree(x+halfwidth,y+halfheight, z, halfwidth,halfheight,halfdepth);
 
-         //bottom quad
+         //back quad
          back_dl =new Octree(x,y, z+halfdepth, halfwidth, halfheight,halfdepth);
          back_dr =new Octree(x+halfwidth, y, z+halfdepth, halfwidth, halfheight, halfdepth);
          back_ul =new Octree(x,y +halfheight, z+halfdepth, halfwidth,halfheight ,halfdepth);
@@ -143,6 +164,10 @@ const static int totalCollisionObjects=5;
              back_ur->addPoint(container[i]);
 
          }
+
+
+
+
      }
 
 
@@ -346,6 +371,7 @@ class NGLScene: public QOpenGLWidget
 {
     Q_OBJECT
 public:
+    static int treeID;
 
     NGLScene();
     ~NGLScene();
@@ -365,7 +391,9 @@ protected:
 
     void findTreeElements(Octree &tree);
     void deleteAreaByAreaElements(Octree &tree);
-    void drawBranches(const Octree *tree);
+    void checkWallCollision(/*Octree *tree,*/ Point &point);
+
+    void drawBranches(Octree *tree);
 
 
     void paintGL ();
@@ -432,6 +460,9 @@ private:
     ngl::Camera *m_cam;
     ngl::Transformation m_transform;
     ngl::Text *m_text;
+
+    std::unique_ptr<Octree> tree;
+
 
 
 

@@ -580,6 +580,8 @@ moc_mainwindow.cpp: /opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QMainWindow \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QOpenGLWidget \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qopenglwidget.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QWidget \
+		/home/yioannidis/NGL/include/ngl/Random.h \
+		/home/yioannidis/NGL/include/ngl/Singleton.h \
 		include/mainwindow.h \
 		/opt/Qt5.7.0/5.7/gcc_64/bin/moc
 	/opt/Qt5.7.0/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt5.7.0/5.7/gcc_64/mkspecs/linux-g++ -I/home/yioannidis/QtStuff/Projects/QuadTreeExtendToOctree/QuadTreeExtendToOctree -I/home/yioannidis/QtStuff/Projects/QuadTreeExtendToOctree/QuadTreeExtendToOctree/include -I/home/yioannidis/NGL/include -I/opt/Qt5.7.0/5.7/gcc_64/include -I/opt/Qt5.7.0/5.7/gcc_64/include/QtOpenGL -I/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets -I/opt/Qt5.7.0/5.7/gcc_64/include/QtGui -I/opt/Qt5.7.0/5.7/gcc_64/include/QtCore -I/usr/include/c++/4.8.5 -I/usr/include/c++/4.8.5/x86_64-redhat-linux -I/usr/include/c++/4.8.5/backward -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include -I/usr/local/include -I/usr/include include/mainwindow.h -o moc_mainwindow.cpp
@@ -716,6 +718,8 @@ moc_nglscene.cpp: /home/yioannidis/NGL/include/ngl/Vec3.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QOpenGLWidget \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qopenglwidget.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QWidget \
+		/home/yioannidis/NGL/include/ngl/Random.h \
+		/home/yioannidis/NGL/include/ngl/Singleton.h \
 		include/nglscene.h \
 		/opt/Qt5.7.0/5.7/gcc_64/bin/moc
 	/opt/Qt5.7.0/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt5.7.0/5.7/gcc_64/mkspecs/linux-g++ -I/home/yioannidis/QtStuff/Projects/QuadTreeExtendToOctree/QuadTreeExtendToOctree -I/home/yioannidis/QtStuff/Projects/QuadTreeExtendToOctree/QuadTreeExtendToOctree/include -I/home/yioannidis/NGL/include -I/opt/Qt5.7.0/5.7/gcc_64/include -I/opt/Qt5.7.0/5.7/gcc_64/include/QtOpenGL -I/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets -I/opt/Qt5.7.0/5.7/gcc_64/include/QtGui -I/opt/Qt5.7.0/5.7/gcc_64/include/QtCore -I/usr/include/c++/4.8.5 -I/usr/include/c++/4.8.5/x86_64-redhat-linux -I/usr/include/c++/4.8.5/backward -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include -I/usr/local/include -I/usr/include include/nglscene.h -o moc_nglscene.cpp
@@ -999,7 +1003,9 @@ obj/main.o: src/main.cpp /opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QApplication 
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtGui/QFont \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QOpenGLWidget \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qopenglwidget.h \
-		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QWidget
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QWidget \
+		/home/yioannidis/NGL/include/ngl/Random.h \
+		/home/yioannidis/NGL/include/ngl/Singleton.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/main.o src/main.cpp
 
 obj/mainwindow.o: src/mainwindow.cpp include/mainwindow.h \
@@ -1140,7 +1146,57 @@ obj/mainwindow.o: src/mainwindow.cpp include/mainwindow.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QOpenGLWidget \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qopenglwidget.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QWidget \
-		ui_mainwindow.h
+		/home/yioannidis/NGL/include/ngl/Random.h \
+		/home/yioannidis/NGL/include/ngl/Singleton.h \
+		ui_mainwindow.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtCore/QVariant \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QAction \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qaction.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qactiongroup.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QApplication \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qapplication.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtCore/qcoreapplication.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtCore/qeventloop.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtGui/qguiapplication.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtGui/qinputmethod.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QButtonGroup \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qbuttongroup.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QDoubleSpinBox \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qspinbox.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtGui/qvalidator.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtCore/qregularexpression.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QGridLayout \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qgridlayout.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qlayout.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qlayoutitem.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qboxlayout.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QGroupBox \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qgroupbox.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qframe.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QHeaderView \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qheaderview.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qabstractitemview.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtCore/qabstractitemmodel.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtCore/qitemselectionmodel.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qstyleoption.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qslider.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qabstractslider.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qstyle.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qtabbar.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qrubberband.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QMenuBar \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qmenubar.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qmenu.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QPushButton \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qpushbutton.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qabstractbutton.h \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QSpacerItem \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QStatusBar \
+		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qstatusbar.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/mainwindow.o src/mainwindow.cpp
 
 obj/nglscene.o: src/nglscene.cpp /opt/Qt5.7.0/5.7/gcc_64/include/QtGui/QMouseEvent \
@@ -1282,15 +1338,15 @@ obj/nglscene.o: src/nglscene.cpp /opt/Qt5.7.0/5.7/gcc_64/include/QtGui/QMouseEve
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QOpenGLWidget \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/qopenglwidget.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtWidgets/QWidget \
-		/home/yioannidis/NGL/include/ngl/NGLInit.h \
+		/home/yioannidis/NGL/include/ngl/Random.h \
 		/home/yioannidis/NGL/include/ngl/Singleton.h \
+		/home/yioannidis/NGL/include/ngl/NGLInit.h \
 		/home/yioannidis/NGL/include/ngl/VAOPrimitives.h \
 		/home/yioannidis/NGL/include/ngl/ShaderLib.h \
 		/home/yioannidis/NGL/include/ngl/Shader.h \
 		/home/yioannidis/NGL/include/ngl/ShaderProgram.h \
 		/home/yioannidis/NGL/include/ngl/Util.h \
 		/home/yioannidis/NGL/include/ngl/Mat3.h \
-		/home/yioannidis/NGL/include/ngl/Random.h \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtCore/QTime \
 		/opt/Qt5.7.0/5.7/gcc_64/include/QtCore/qdatetime.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/nglscene.o src/nglscene.cpp
