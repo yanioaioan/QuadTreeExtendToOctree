@@ -64,14 +64,14 @@ const static int totalCollisionObjects=5;
      Octree(const Octree& t){x=t.x; y=t.y; z=t.z;}
 
      std::vector<Point>container;
-     Octree *front_dl =NULL;
-     Octree *front_dr =NULL;
-     Octree *front_ul =NULL;
-     Octree *front_ur =NULL;
-     Octree *back_dl =NULL;
-     Octree *back_dr =NULL;
-     Octree *back_ul =NULL;
-     Octree *back_ur =NULL;
+     std::unique_ptr<Octree> front_dl =NULL;
+     std::unique_ptr<Octree> front_dr =NULL;
+     std::unique_ptr<Octree> front_ul =NULL;
+     std::unique_ptr<Octree> front_ur =NULL;
+     std::unique_ptr<Octree> back_dl =NULL;
+     std::unique_ptr<Octree> back_dr =NULL;
+     std::unique_ptr<Octree> back_ul =NULL;
+     std::unique_ptr<Octree> back_ur =NULL;
      float x,y,z, width, height, depth;
      int treeId;
 
@@ -139,16 +139,16 @@ const static int totalCollisionObjects=5;
          //create 4 sub-trees based on the width&height of the parent Octree
 
          //front quad
-         front_dl =new Octree(x,y,z, halfwidth, halfheight,halfdepth);
-         front_dr =new Octree(x +halfwidth,y, z, halfwidth,halfheight,halfdepth);
-         front_ul =new Octree(x,y +halfheight, z, halfwidth,halfheight,halfdepth);
-         front_ur =new Octree(x+halfwidth,y+halfheight, z, halfwidth,halfheight,halfdepth);
+         front_dl.reset(new Octree(x,y,z, halfwidth, halfheight,halfdepth));
+         front_dr.reset(new Octree(x +halfwidth,y, z, halfwidth,halfheight,halfdepth));
+         front_ul.reset(new Octree(x,y +halfheight, z, halfwidth,halfheight,halfdepth));
+         front_ur.reset(new Octree(x+halfwidth,y+halfheight, z, halfwidth,halfheight,halfdepth));
 
          //back quad
-         back_dl =new Octree(x,y, z+halfdepth, halfwidth, halfheight,halfdepth);
-         back_dr =new Octree(x+halfwidth, y, z+halfdepth, halfwidth, halfheight, halfdepth);
-         back_ul =new Octree(x,y +halfheight, z+halfdepth, halfwidth,halfheight ,halfdepth);
-         back_ur =new Octree(x+halfwidth,y+halfheight, z+halfdepth, halfwidth, halfheight, halfdepth);
+         back_dl.reset(new Octree(x,y, z+halfdepth, halfwidth, halfheight,halfdepth));
+         back_dr.reset(new Octree(x+halfwidth, y, z+halfdepth, halfwidth, halfheight, halfdepth));
+         back_ul.reset(new Octree(x,y +halfheight, z+halfdepth, halfwidth,halfheight ,halfdepth));
+         back_ur.reset(new Octree(x+halfwidth,y+halfheight, z+halfdepth, halfwidth, halfheight, halfdepth));
 
          for(unsigned int i =0;i <container.size();i++)
          {
@@ -385,7 +385,7 @@ protected:
     void resizeGL (QResizeEvent *_event);
     void loadMatricesToShader(ngl::Transformation &_transform, const ngl::Mat4 &_globalTx, ngl::Camera *_cam, ngl::Colour &c);
     void detectAndResolveCollisions(Point &a, std::vector<Point> *collisionAreaPoints, const float &width, const float &height);
-    void getPointCollisions(const Point &a, Octree *tree);
+    void getPointCollisions(const Point &a, std::unique_ptr<Octree> tree);
 
     int getOctantContainingPoint(Point &point, Octree *tree) const ;
 
@@ -393,7 +393,7 @@ protected:
     void deleteAreaByAreaElements(Octree &tree);
     void checkWallCollision(/*Octree *tree,*/ Point &point);
 
-    void drawBranches(Octree *tree);
+    void drawBranches(std::unique_ptr<Octree> tree);
 
 
     void paintGL ();
