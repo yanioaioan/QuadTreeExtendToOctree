@@ -563,6 +563,9 @@ void NGLScene::drawBranches(std::shared_ptr<Octree> tree)
     {
          treesize+=tree->container.size();
 
+
+
+
          ngl::Colour collisionNeighbourhoodAreaColour(ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), 1);
          for(int i=0;i<tree->container.size();i++)
          {
@@ -630,6 +633,49 @@ void NGLScene::drawBranches(std::shared_ptr<Octree> tree)
         drawBranches((tree->back_ur));
 }
 
+void NGLScene::saveNewPosBranches(std::shared_ptr<Octree> tree)
+{
+
+    if ( (tree->front_dl==NULL && tree->front_dr==NULL && tree->front_ul==NULL && tree->front_ur==NULL)
+         && (tree->back_dl==NULL && tree->back_dr==NULL && tree->back_ul==NULL && tree->back_ur==NULL)
+          )
+    {
+         treesize+=tree->container.size();
+
+         for(auto el: tree->container)
+         {
+             treePositions.push_back(el);
+         }
+
+         return ;
+    }
+    if (tree->front_dl!=NULL && tree->front_dl->container.size()!=0)
+        saveNewPosBranches((tree->front_dl));
+
+    if (tree->front_dr!=NULL&&tree->front_dr->container.size()!=0)
+        saveNewPosBranches((tree->front_dr));
+
+     if (tree->front_ul!=NULL&&tree->front_ul->container.size()!=0)
+        saveNewPosBranches((tree->front_ul));
+
+     if (tree->front_ur!=NULL&&tree->front_ur->container.size()!=0)
+        saveNewPosBranches((tree->front_ur));
+
+     if (tree->back_dl!=NULL&&tree->back_dl->container.size()!=0)
+        saveNewPosBranches((tree->back_dl));
+
+     if (tree->back_dr!=NULL&&tree->back_dr->container.size()!=0)
+        saveNewPosBranches((tree->back_dr));
+
+     if (tree->back_ul!=NULL&&tree->back_ul->container.size()!=0)
+        saveNewPosBranches((tree->back_ul));
+
+     if (tree->back_ur!=NULL&&tree->back_ur->container.size()!=0)
+        saveNewPosBranches((tree->back_ur));
+}
+
+
+
 #include <ngl/NGLStream.h>
 void NGLScene::paintGL ()
 {
@@ -666,6 +712,14 @@ void NGLScene::paintGL ()
        float y = treePositions[i].y;
        float z = treePositions[i].z;
 
+
+        std::cout<<"treePositions["<<i<<"].x="<<treePositions[i].x<<'\n';
+//        ngl::Random *rng=ngl::Random::instance ();
+//        float x = (float)rng->randomPositiveNumber(treewidth/4);
+//        float y = (float)rng->randomPositiveNumber (treeheight/4);
+//        float z = (float)rng->randomPositiveNumber (treedepth/4);
+
+
        ngl::Vec3 tVel(treePositions[i].vx,treePositions[i].vy,treePositions[i].vz);
 
        if(treePositions[i].id==4)
@@ -679,7 +733,7 @@ void NGLScene::paintGL ()
 
     treesize=0;
     //draw all branches of the tree
-    tree->countBranches();
+//    tree->countBranches();
 
     std::cout<<"counted treesize="<<treesize<<'\n';
 
@@ -691,7 +745,14 @@ void NGLScene::paintGL ()
 
     //Draw updated Tree
     treesize=0;
-    drawBranches((tree));
+    drawBranches(tree);
+
+    //update vector based on tree container
+    treePositions.clear();
+    saveNewPosBranches(tree);
+
+
+
 
 
         QString text;

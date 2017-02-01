@@ -24,8 +24,9 @@ const static int totalCollisionObjects=5;
 
  struct Point
  {
-     float x,y,z;
      float id;
+     float x,y,z;
+
      float radius;
      float vx,vy,vz;
 
@@ -56,7 +57,6 @@ const static int totalCollisionObjects=5;
  };
 
  static size_t treesize;
-
 
 
  typedef struct Octree
@@ -99,14 +99,15 @@ const static int totalCollisionObjects=5;
      //creating too much overhead for no reason at all, as we split space and don't put/allocate points in
      unsigned int maxCapacity=2;//totalCollisionObjects/spliInNodes;
 
-     int countBranches()
+     void countBranches()
      {
          if ( (front_dl==NULL &&front_dr==NULL &&front_ul==NULL &&front_ur==NULL)
               && (back_dl==NULL &&back_dr==NULL &&back_ul==NULL &&back_ur==NULL)
                )
          {
               treesize+=container.size();
-              return 0;
+
+              return;
 
          }
          if (front_dl!=NULL && front_dl->container.size()!=0)
@@ -394,6 +395,8 @@ protected:
     void checkWallCollision(/*Octree *tree,*/ Point &point);
 
     void drawBranches(std::shared_ptr<Octree> tree);
+    void saveNewPosBranches(std::shared_ptr<Octree> tree);
+
 
 
     void paintGL ();
