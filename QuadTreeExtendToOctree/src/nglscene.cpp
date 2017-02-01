@@ -570,12 +570,11 @@ void NGLScene::drawBranches(Octree *tree)
              //update pos based on artificial velocity
              //std::cout<<"moving..particle ID "<<tree->container[i].id<<'\n';
 
-             tree->container[i].x+=0.1;
-//             tree->container[i].y+=tree->container[i].vy;
-//             tree->container[i].z+=tree->container[i].vz;
+             tree->container[i].x+=tree->container[i].vx;
+             tree->container[i].y+=tree->container[i].vy;
+             tree->container[i].z+=tree->container[i].vz;
 
              //check wall collision
-
              checkWallCollision(/*tree,*/tree->container[i]);
 
 
@@ -592,7 +591,7 @@ void NGLScene::drawBranches(Octree *tree)
                  // now update the appropriate element on the treePositions vector (use the index of where it was found on the treePositions vectors)
                  auto index = std::distance(treePositions.begin(), element);
                  // update that particular element ot the treePositions vector
-                 treePositions[index] =tree->container[i];
+                 treePositions[index] = tree->container[i];
              }
 
              //now everything according to tree->container[i]
