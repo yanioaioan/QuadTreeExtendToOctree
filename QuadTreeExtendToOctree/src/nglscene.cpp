@@ -283,9 +283,9 @@ void NGLScene::getPointCollisions(const Point &a, std::shared_ptr<Octree> tree)
                             tree->container[i].y+=norm.m_y;
                             tree->container[i].z+=norm.m_z;
 
-                            tree->container[j].x-=norm.m_x;
-                            tree->container[j].y-=norm.m_y;
-                            tree->container[j].z-=norm.m_z;
+                            tree->container[j].x+=norm.m_x;
+                            tree->container[j].y+=norm.m_y;
+                            tree->container[j].z+=norm.m_z;
 
 
                         }
@@ -733,7 +733,7 @@ void NGLScene::paintGL ()
 
     treesize=0;
     //draw all branches of the tree
-//    tree->countBranches();
+    tree->countBranches();
 
     std::cout<<"counted treesize="<<treesize<<'\n';
 
