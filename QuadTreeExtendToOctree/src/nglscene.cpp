@@ -553,9 +553,15 @@ void NGLScene::checkWallCollision(Point &point)
         point.vz = - point.vz;
     }
 }
-
-void NGLScene::drawBranches(std::shared_ptr<Octree> tree)
+static int drawbranchescounter=0;
+void NGLScene::drawBranches(std::shared_ptr<Octree>  tree)
 {
+    drawbranchescounter++;
+    if(drawbranchescounter==742)
+    {
+         std::cout<<"Nan"<<'\n';
+    }
+
 
     if ( (tree->front_dl==NULL && tree->front_dr==NULL && tree->front_ul==NULL && tree->front_ur==NULL)
          && (tree->back_dl==NULL && tree->back_dr==NULL && tree->back_ul==NULL && tree->back_ur==NULL)
@@ -595,6 +601,11 @@ void NGLScene::drawBranches(std::shared_ptr<Octree> tree)
                  auto index = std::distance(treePositions.begin(), element);
                  // update that particular element ot the treePositions vector
                  treePositions[index] = tree->container[i];
+
+                 if (std::isnan(tree->container[i].x))
+                 {
+                    std::cout<<"Nan"<<'\n';
+                 }
              }
 
              //now everything according to tree->container[i]
@@ -697,6 +708,18 @@ void NGLScene::paintGL ()
     m_mouseGlobalTX.m_m[3][0] = m_modelPos.m_x;
     m_mouseGlobalTX.m_m[3][1] = m_modelPos.m_y;
     m_mouseGlobalTX.m_m[3][2] = m_modelPos.m_z;
+
+//    std::vector<Point> testPOSITIONS;
+//    for(int i=0;i<totalCollisionObjects;i++)
+//    {
+//        ngl::Random *rng=ngl::Random::instance ();
+//        float x = (float)rng->randomPositiveNumber(treewidth/4);
+//        float y = (float)rng->randomPositiveNumber (treeheight/4);
+//        float z = (float)rng->randomPositiveNumber (treedepth/4);
+//        testPOSITIONS.push_back(Point(totalCollisionObjects,x,y,z,0.1,0.1,0.1));
+
+
+//    }
 
 
 

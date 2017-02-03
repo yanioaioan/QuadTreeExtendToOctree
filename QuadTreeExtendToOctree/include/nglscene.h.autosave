@@ -394,7 +394,7 @@ protected:
     void deleteAreaByAreaElements(Octree &tree);
     void checkWallCollision(/*Octree *tree,*/ Point &point);
 
-    void drawBranches(std::shared_ptr<Octree> &tree);
+    void drawBranches(std::shared_ptr<Octree> tree);
     void saveNewPosBranches(std::shared_ptr<Octree> tree);
 
 
