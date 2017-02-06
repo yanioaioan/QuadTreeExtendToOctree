@@ -17,7 +17,7 @@
 
 //unsigned static int maxCapacity;
 
-const static int totalCollisionObjects=5;
+const static int totalCollisionObjects=5000;
 
 #define epsilon 1.0E-2
 
@@ -97,7 +97,7 @@ const static int totalCollisionObjects=5;
      //If points are evenly distributed then , the more subtrees the better as we end up with fewer tests.
      //On the contrary, if we have a non even distribution for which we test against, then this probably means we are
      //creating too much overhead for no reason at all, as we split space and don't put/allocate points in
-     unsigned int maxCapacity=2;//totalCollisionObjects/spliInNodes;
+     unsigned int maxCapacity=5;//totalCollisionObjects/spliInNodes;
 
      void countBranches()
      {
@@ -386,7 +386,7 @@ protected:
     void resizeGL (QResizeEvent *_event);
     void loadMatricesToShader(ngl::Transformation &_transform, const ngl::Mat4 &_globalTx, ngl::Camera *_cam, ngl::Colour &c);
     void detectAndResolveCollisions(Point &a, std::vector<Point> *collisionAreaPoints, const float &width, const float &height);
-    void getPointCollisions(const Point &a, std::shared_ptr<Octree> tree);
+    void getPointCollisions(const Point a, std::shared_ptr<Octree> & tree);
 
     int getOctantContainingPoint(Point &point, Octree *tree) const ;
 
@@ -394,8 +394,10 @@ protected:
     void deleteAreaByAreaElements(Octree &tree);
     void checkWallCollision(/*Octree *tree,*/ Point &point);
 
-    void drawBranches(std::shared_ptr<Octree> &tree);
-    void saveNewPosBranches(std::shared_ptr<Octree> tree);
+    void updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree);
+
+    void drawBranches(const std::shared_ptr<Octree> &tree);
+    void saveNewPosBranches(const std::shared_ptr<Octree> &tree);
 
 
 

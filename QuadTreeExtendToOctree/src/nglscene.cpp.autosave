@@ -829,7 +829,7 @@ void NGLScene::paintGL ()
 //    treePositions.clear();
 
     counterID=0;
-//    saveNewPosBranches(tree);
+    saveNewPosBranches(tree);
 
 
 
