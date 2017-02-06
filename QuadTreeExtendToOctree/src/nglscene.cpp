@@ -84,18 +84,18 @@ void NGLScene::initializeGL ()
     for(int i=0;i<totalCollisionObjects;i++)
     {
        ngl::Random *rng=ngl::Random::instance ();
-       float x = (float)rng->randomPositiveNumber(treewidth/400);
-       float y = (float)rng->randomPositiveNumber (treeheight/400);
-       float z = (float)rng->randomPositiveNumber (treedepth/400);
+       float x = (float)rng->randomPositiveNumber(treewidth/(totalCollisionObjects/10));
+       float y = (float)rng->randomPositiveNumber (treeheight/(totalCollisionObjects/10));
+       float z = (float)rng->randomPositiveNumber (treedepth/(totalCollisionObjects/10));
 
 //       x=i;y=0;z=0;
 
        //save positions
-       Point t(i,x,y,z,0.1,0.1,0.1);
+       Point t(i,x,y,z,1,1,1);
        treePositions.push_back (t);
 
 
-       Point tempPoint(i,x,y,z,0.1,0.1,0.1);//or insert x,y instead of i,i to create some randomness
+       Point tempPoint(i,x,y,z,1,1,1);//or insert x,y instead of i,i to create some randomness
        tree->addPoint(tempPoint);
     }
 
@@ -550,22 +550,26 @@ void NGLScene::deleteAreaByAreaElements(Octree &tree)
 void NGLScene::checkWallCollision(Point &point)
 {
     //when cubes out of the root bounding voliume, reverse velocity
-    if ( (point.x<0.1) || (point.x>treewidth/400) )
+    if ( (point.x<0.1) || (point.x>treewidth/(totalCollisionObjects/10)) )
     {
         point.vx = - point.vx;
 
     }
-    if ( (point.y<0.1) || (point.y>treewidth/400) )
+    if ( (point.y<0.1) || (point.y>treeheight/(totalCollisionObjects/10)) )
     {
         point.vy = - point.vy;
 
     }
-    if ( (point.z<0.1) || (point.z>treewidth/400) )
+    if ( (point.z<0.1) || (point.z>treedepth/(totalCollisionObjects/10)) )
     {
         point.vz = - point.vz;
-
     }
+
+
 }
+
+
+static int drawbranchescounter=0;
 
 
 void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
@@ -574,6 +578,13 @@ void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
          && (tree->back_dl==NULL && tree->back_dr==NULL && tree->back_ul==NULL && tree->back_ur==NULL)
           )
     {
+
+
+
+        if(drawbranchescounter==1542)
+        {
+             std::cout<<"Nan"<<'\n';
+        }
 
          ngl::Colour collisionNeighbourhoodAreaColour(ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), 1);
          for(int i=0;i<tree->container.size();i++)
@@ -652,7 +663,6 @@ void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
 
 
 
-static int drawbranchescounter=0;
 void NGLScene::drawBranches(const std::shared_ptr<Octree> & tree)
 {
     drawbranchescounter++;
@@ -829,7 +839,7 @@ void NGLScene::paintGL ()
 //    treePositions.clear();
 
     counterID=0;
-//    saveNewPosBranches(tree);
+    saveNewPosBranches(tree);
 
 
 

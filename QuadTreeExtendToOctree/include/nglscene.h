@@ -17,7 +17,7 @@
 
 //unsigned static int maxCapacity;
 
-const static int totalCollisionObjects=5000;
+const static int totalCollisionObjects=50;
 
 #define epsilon 1.0E-2
 
@@ -84,7 +84,7 @@ const static int totalCollisionObjects=5000;
          treeId=nexttreeID;
          x =_x;
          y =_y;
-         z = _z;
+         z =_z;
          width =_width;
          height =_height;
          depth = _depth;
@@ -172,7 +172,7 @@ const static int totalCollisionObjects=5000;
      }
 
 
-     void addPoint(Point &a)
+     void addPoint(const Point &a)
      {
          //std::cout <<x <<std::endl;
          //ensure within the quad boundairies
