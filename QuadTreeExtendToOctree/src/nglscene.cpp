@@ -570,6 +570,8 @@ void NGLScene::checkWallCollision(Point &point)
 
 
 static int drawbranchescounter=0;
+static int startDebugCounter=0;
+
 
 
 void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
@@ -581,9 +583,10 @@ void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
 
 
 
-        if(drawbranchescounter==1542)
+        if(drawbranchescounter==1524)
         {
              std::cout<<"Nan"<<'\n';
+             startDebugCounter++;
         }
 
          ngl::Colour collisionNeighbourhoodAreaColour(ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), ngl::Random::instance ()->randomPositiveNumber (), 1);

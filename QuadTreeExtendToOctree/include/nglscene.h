@@ -48,10 +48,10 @@ const static int totalCollisionObjects=50;
      bool operator==(const Point& a ) const {
 
 //         return a.x==x && a.y==y && a.z==z;
-//         return AreSame(a.x, x) && AreSame(a.y, y) && AreSame(a.z, z);
+         return AreSame(a.x, x) && AreSame(a.y, y) && AreSame(a.z, z);
 
          //compare beased on id
-         return a.id ==id;
+//         return a.id ==id;
          }
 
  };
