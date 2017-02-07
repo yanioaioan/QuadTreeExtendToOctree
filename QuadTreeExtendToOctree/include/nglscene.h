@@ -17,7 +17,7 @@
 
 //unsigned static int maxCapacity;
 
-const static int totalCollisionObjects=50;
+const static int totalCollisionObjects=10000;
 
 #define epsilon 1.0E-2
 
@@ -203,7 +203,7 @@ const static int totalCollisionObjects=50;
      }
 
 
-//     void getPointCollisions(Point &a, Octree *tree)
+//     void pointToPointscollisionDetectionAndRespone(Point &a, Octree *tree)
 //     {
 //         //if tree node is a leaf node
 //         if ( (tree->ul==NULL && tree->ur==NULL && tree->dl==NULL && tree->dr==NULL) /*&&  std::find(tree->container.begin(), tree->container.end(), a) !=tree->container.end()*/ )
@@ -238,25 +238,25 @@ const static int totalCollisionObjects=50;
 //             if (a.x >= tree->dl->x && a.x <= tree->dl->x+tree->dl->width &&
 //                 a.y >= tree->dl->y && a.y <= tree->dl->y+tree->dl->height)
 //             {
-//                 getPointCollisions (a,(tree->dl));
+//                 pointToPointscollisionDetectionAndRespone (a,(tree->dl));
 //             }
 
 //             if (a.x >= tree->dr->x && a.x <= tree->dr->x+tree->dr->width &&
 //                 a.y >= tree->dr->y && a.y <= tree->dr->y+tree->dr->height)
 //             {
-//                 getPointCollisions (a,(tree->dr));
+//                 pointToPointscollisionDetectionAndRespone (a,(tree->dr));
 //             }
 
 //             if (a.x >= tree->ul->x && a.x <= tree->ul->x+tree->ul->width &&
 //                 a.y >= tree->ul->y && a.y <= tree->ul->y+tree->ul->height)
 //             {
-//                 getPointCollisions (a,(tree->ul));
+//                 pointToPointscollisionDetectionAndRespone (a,(tree->ul));
 //             }
 
 //             if (a.x >= tree->ur->x && a.x <= tree->ur->x+tree->ur->width &&
 //                 a.y >= tree->ur->y && a.y <= tree->ur->y+tree->ur->height)
 //             {
-//                 getPointCollisions (a,(tree->ur));
+//                 pointToPointscollisionDetectionAndRespone (a,(tree->ur));
 //             }
 
 
@@ -270,11 +270,11 @@ const static int totalCollisionObjects=50;
 ////                   //Up Left
 ////                   if(a.y > tree->y + tree->height / 2)
 ////                   {
-////                     getPointCollisions (a,(tree->ul));
+////                     pointToPointscollisionDetectionAndRespone (a,(tree->ul));
 ////                   }
 ////                   else//Down Left
 ////                   {
-////                     getPointCollisions (a,(tree->dl));
+////                     pointToPointscollisionDetectionAndRespone (a,(tree->dl));
 ////                   }
 ////                 }
 ////                 else//Right areas
@@ -282,11 +282,11 @@ const static int totalCollisionObjects=50;
 ////                     //Up Right
 ////                   if(a.y > tree->y + tree->height / 2)
 ////                   {
-////                    getPointCollisions (a,(tree->ur));
+////                    pointToPointscollisionDetectionAndRespone (a,(tree->ur));
 ////                   }
 ////                   else//Down Right
 ////                   {
-////                     getPointCollisions (a,(tree->dr));
+////                     pointToPointscollisionDetectionAndRespone (a,(tree->dr));
 ////                   }
 ////                 }
 
@@ -298,22 +298,22 @@ const static int totalCollisionObjects=50;
 ////             //ul
 ////             if (a.x >=tree.ul->x &&a.y >=tree.ul->y &&a.x <tree.ul->x +tree.ul->width /2 && a.y <tree.ul->y +tree.ul->height /2)
 ////             {
-////                 getPointCollisions (a,*(tree.ul));
+////                 pointToPointscollisionDetectionAndRespone (a,*(tree.ul));
 ////             }
 ////             //ur
 ////             if (a.x >=tree.ur->x+tree.ur->width /2 &&a.y >=tree.ur->y &&a.x <tree.ur->x +tree.ur->width /2 && a.y <tree.ur->y +tree.ur->height /2)
 ////             {
-////                 getPointCollisions (a,*(tree.ur));
+////                 pointToPointscollisionDetectionAndRespone (a,*(tree.ur));
 ////             }
 ////             //dl
 ////             if (a.x >=tree.dl->x &&a.y >=tree.dl->y+tree.dl->height /2 &&a.x <tree.dl->x +tree.dl->width /2 && a.y <tree.dl->y +tree.dl->height /2)
 ////             {
-////                 getPointCollisions (a,*(tree.dl));
+////                 pointToPointscollisionDetectionAndRespone (a,*(tree.dl));
 ////             }
 ////             //dr
 ////             if (a.x >=tree.dr->x+tree.dr->width /2  &&a.y >=tree.dr->y+tree.dr->height /2 &&a.x <tree.dr->x +tree.dr->width /2 && a.y <tree.dr->y +tree.dr->height /2)
 ////             {
-////                 getPointCollisions (a,*(tree.dr));
+////                 pointToPointscollisionDetectionAndRespone (a,*(tree.dr));
 ////             }
 
 
@@ -386,13 +386,13 @@ protected:
     void resizeGL (QResizeEvent *_event);
     void loadMatricesToShader(ngl::Transformation &_transform, const ngl::Mat4 &_globalTx, ngl::Camera *_cam, ngl::Colour &c);
     void detectAndResolveCollisions(Point &a, std::vector<Point> *collisionAreaPoints, const float &width, const float &height);
-    void getPointCollisions(const Point a, std::shared_ptr<Octree> & tree);
+    void pointToPointscollisionDetectionAndRespone(const Point a, std::shared_ptr<Octree> & tree);
 
     int getOctantContainingPoint(Point &point, Octree *tree) const ;
 
     void findTreeElements(Octree &tree);
     void deleteAreaByAreaElements(Octree &tree);
-    void checkWallCollision(/*Octree *tree,*/ Point &point);
+    void checkPointToWallCollision(/*Octree *tree,*/ Point &point);
 
     void updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree);
 

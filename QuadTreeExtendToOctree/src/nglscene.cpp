@@ -55,7 +55,7 @@ void NGLScene::initializeGL ()
     glClearColor (0.4,0.4,0.4,1);
     //std::cout<<"Initializing NGL\n";
 
-    ngl::Vec3 from(50,50,50);ngl::Vec3 to(20,20,0);ngl::Vec3 up(0,1,0);
+    ngl::Vec3 from(25,70,120);ngl::Vec3 to(25,25,0);ngl::Vec3 up(0,1,0);
     m_cam = new ngl::Camera(from,to,up);
     m_cam->setShape(45,(float)720/576,0.05,350);
 
@@ -78,7 +78,7 @@ void NGLScene::initializeGL ()
     // as re-size is not explicitly called we need to do this.
    glViewport(0,0,width(),height());
 
-   tree.reset(new Octree(0,0,0,treewidth,treeheight,treedepth));
+   tree.reset(new Octree(0,0,0,treewidth/(totalCollisionObjects/10)+1,treeheight/(totalCollisionObjects/10)+1,treedepth/(totalCollisionObjects/10)+1));
 
     //Fill random 2D Values to Octree
     for(int i=0;i<totalCollisionObjects;i++)
@@ -91,11 +91,11 @@ void NGLScene::initializeGL ()
 //       x=i;y=0;z=0;
 
        //save positions
-       Point t(i,x,y,z,1,1,1);
+       Point t(i,x,y,z,-0.1,-0.1,-0.1);
        treePositions.push_back (t);
 
 
-       Point tempPoint(i,x,y,z,1,1,1);//or insert x,y instead of i,i to create some randomness
+       Point tempPoint(i,x,y,z,-0.1,-0.1,-0.1);//or insert x,y instead of i,i to create some randomness
        tree->addPoint(tempPoint);
     }
 
@@ -103,7 +103,7 @@ void NGLScene::initializeGL ()
     //find & get the collision neighbours of Point a(8,8), if (8,8) is in the tree
 //    Point a(3,3);
     //Point a(2530,7399);
-//    getPointCollisions(a,&tree);
+//    pointToPointscollisionDetectionAndRespone(a,&tree);
 
     currenttime.start();
     tmpTimeElapsed = 0;
@@ -193,7 +193,7 @@ int NGLScene::getOctantContainingPoint( Point& point, Octree *tree) const {
 
 
 //This method used to be a member function of Octree Structure
-void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
+void NGLScene::pointToPointscollisionDetectionAndRespone(const Point a, std::shared_ptr<Octree> & tree)
 {
 
 
@@ -258,45 +258,66 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
         {
             for(int i=0;i<tree->container.size();++i)
             {
-
 //                tree->container[i].x=0;
 //                tree->container[i].y=0;
 //                tree->container[i].z=0;
 
                 ngl::Vec3 p1(tree->container[i].x,tree->container[i].y,tree->container[i].z);
 
+                ngl::Vec3 force(0,0,0);
                 for(int j=0;j<tree->container.size();++j)
                 {
                     if (tree->container[i].id != tree->container[j].id)//do not check particle with itself
                     {
                         ngl::Vec3 p2(tree->container[j].x,tree->container[j].y,tree->container[j].z);
 
-                        float len = (p1-p2).length() ;
-                        if ( (p1-p2).length() < tree->container[i].radius *tree->container[i].radius )
+                        float lensqrt = (p1-p2).lengthSquared();//squared distance between sphere centers
+                        float sumOfRadiuses=tree->container[i].radius + tree->container[j].radius;
+                        sumOfRadiuses*=sumOfRadiuses;//squared sumOfRadiuses of the two spheres
+
+
+                        if (lensqrt <= sumOfRadiuses )//Collision Detected
                         {
-
+                            //caclulate
                             ngl::Vec3 N(p1-p2);
-                            N.normalize();
-                            //the penetrated distance
-                            float dist=tree->container[i].radius + tree->container[j].radius - (p1-p2).length();
-                            ngl::Vec3 norm=dist*N;
+                            ngl::Vec3 norm(0,0,0);
 
+                            //penetrated distanceIn
+                            float distanceIn= 2 * tree->container[i].radius - (p1-p2).length();
+                            if(lensqrt!=0)
+                            {
+                                //offset out the sphere the appropriate amount
+                                N.normalize();
+                                norm=distanceIn*N;
+                            }
 
 //                            //collision detected/response, so move each other apart randomly towards all three directions
-                            tree->container[i].x+=norm.m_x;
-                            tree->container[i].y+=norm.m_y;
-                            tree->container[i].z+=norm.m_z;
+                            force.m_x+=distanceIn *norm.m_x;
+                            force.m_y+=distanceIn *norm.m_y;
+                            force.m_z+=distanceIn *norm.m_z;
 
-                            tree->container[j].x-=norm.m_x;
-                            tree->container[j].y-=norm.m_y;
-                            tree->container[j].z-=norm.m_z;
+//                            tree->container[i].x+=0.1;//norm.m_x;
+//                            tree->container[i].y+=0.1;//norm.m_y;
+//                            tree->container[i].z+=0.1;//norm.m_z;
 
-
+//                            tree->container[j].x-=0.1;
+//                            tree->container[j].y-=0.1;
+//                            tree->container[j].z-=0.1;
                         }
                     }
-
                 }
 
+                tree->container[i].vx +=force.m_x;
+                tree->container[i].vy +=force.m_y;
+                tree->container[i].vz +=force.m_z;
+
+                //normalize vel
+                float velLength=sqrt(tree->container[i].vx*tree->container[i].vx + tree->container[i].vy*tree->container[i].vy + tree->container[i].vz*tree->container[i].vz);
+
+                //normalize it
+                tree->container[i].vx /= velLength;
+                tree->container[i].vy /= velLength;
+                tree->container[i].vz /= velLength;
 
             }
         }
@@ -384,21 +405,21 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
 
         // find in which octant does the 'a' point lies into
 //        if (octant==0)
-//            getPointCollisions (a,(tree->front_dl));
+//            pointToPointscollisionDetectionAndRespone (a,(tree->front_dl));
 //        if (octant==1)
-//            getPointCollisions (a,(tree->front_dr));
+//            pointToPointscollisionDetectionAndRespone (a,(tree->front_dr));
 //        if (octant==2)
-//            getPointCollisions (a,(tree->front_ul));
+//            pointToPointscollisionDetectionAndRespone (a,(tree->front_ul));
 //        if (octant==3)
-//            getPointCollisions (a,(tree->front_ur));
+//            pointToPointscollisionDetectionAndRespone (a,(tree->front_ur));
 //        if (octant==4)
-//            getPointCollisions (a,(tree->back_dl));
+//            pointToPointscollisionDetectionAndRespone (a,(tree->back_dl));
 //        if (octant==5)
-//            getPointCollisions (a,(tree->back_dr));
+//            pointToPointscollisionDetectionAndRespone (a,(tree->back_dr));
 //        if (octant==6)
-//            getPointCollisions (a,(tree->back_ul));
+//            pointToPointscollisionDetectionAndRespone (a,(tree->back_ul));
 //        if (octant==7)
-//            getPointCollisions (a,(tree->back_ur));
+//            pointToPointscollisionDetectionAndRespone (a,(tree->back_ur));
 
 
 
@@ -410,7 +431,7 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
             )
         {
             //and dig one level down to check if 'a' is one of the leaf nodes of this tree->front_dl, so as to query all of its neighbours too
-            getPointCollisions (a,(tree->front_dl));
+            pointToPointscollisionDetectionAndRespone (a,(tree->front_dl));
         }
 
         if (a.x >= tree->front_dr->x && a.x <= tree->front_dr->x+tree->front_dr->width &&
@@ -418,7 +439,7 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
             a.z >= tree->front_dr->z && a.z <= tree->front_dr->z+tree->front_dr->depth
            )
         {
-            getPointCollisions (a,(tree->front_dr));
+            pointToPointscollisionDetectionAndRespone (a,(tree->front_dr));
         }
 
         if (a.x >= tree->front_ul->x && a.x <= tree->front_ul->x+tree->front_ul->width &&
@@ -426,7 +447,7 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
             a.z >= tree->front_ul->z && a.z <= tree->front_ul->z+tree->front_ul->depth
             )
         {
-            getPointCollisions (a,(tree->front_ul));
+            pointToPointscollisionDetectionAndRespone (a,(tree->front_ul));
         }
 
         if (a.x >= tree->front_ur->x && a.x <= tree->front_ur->x+tree->front_ur->width &&
@@ -434,7 +455,7 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
             a.z >= tree->front_ur->z && a.z <= tree->front_ur->z+tree->front_ur->depth
             )
         {
-            getPointCollisions (a,(tree->front_ur));
+            pointToPointscollisionDetectionAndRespone (a,(tree->front_ur));
         }
 
         //BOTTOM
@@ -444,7 +465,7 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
             a.z >= tree->back_dl->z && a.z <= tree->back_dl->z+tree->back_dl->depth
             )
         {
-            getPointCollisions (a,(tree->back_dl));
+            pointToPointscollisionDetectionAndRespone (a,(tree->back_dl));
         }
 
         if (a.x >= tree->back_dr->x && a.x <= tree->back_dr->x+tree->back_dr->width &&
@@ -452,7 +473,7 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
             a.z >= tree->back_dr->z && a.z <= tree->back_dr->z+tree->back_dr->depth
            )
         {
-            getPointCollisions (a,(tree->back_dr));
+            pointToPointscollisionDetectionAndRespone (a,(tree->back_dr));
         }
 
         if (a.x >= tree->back_ul->x && a.x <= tree->back_ul->x+tree->back_ul->width &&
@@ -460,7 +481,7 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
             a.z >= tree->back_ul->z && a.z <= tree->back_ul->z+tree->back_ul->depth
             )
         {
-            getPointCollisions (a,(tree->back_ul));
+            pointToPointscollisionDetectionAndRespone (a,(tree->back_ul));
         }
 
         if (a.x >= tree->back_ur->x && a.x <= tree->back_ur->x+tree->back_ur->width &&
@@ -468,7 +489,7 @@ void NGLScene::getPointCollisions(const Point a, std::shared_ptr<Octree> & tree)
             a.z >= tree->back_ur->z && a.z <= tree->back_ur->z+tree->back_ur->depth
             )
         {
-            getPointCollisions (a,(tree->back_ur));
+            pointToPointscollisionDetectionAndRespone (a,(tree->back_ur));
         }
 
 
@@ -547,7 +568,7 @@ void NGLScene::deleteAreaByAreaElements(Octree &tree)
 }
 
 
-void NGLScene::checkWallCollision(Point &point)
+void NGLScene::checkPointToWallCollision(Point &point)
 {
     //when cubes out of the root bounding voliume, reverse velocity
     if ( (point.x<0.1) || (point.x>treewidth/(totalCollisionObjects/10)) )
@@ -559,10 +580,14 @@ void NGLScene::checkWallCollision(Point &point)
     {
         point.vy = - point.vy;
 
+
+
+
     }
     if ( (point.z<0.1) || (point.z>treedepth/(totalCollisionObjects/10)) )
     {
         point.vz = - point.vz;
+
     }
 
 
@@ -581,11 +606,9 @@ void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
           )
     {
 
-
-
         if(drawbranchescounter==1524)
         {
-             std::cout<<"Nan"<<'\n';
+//             std::cout<<"Nan"<<'\n';
              startDebugCounter++;
         }
 
@@ -598,16 +621,13 @@ void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
 
 
              //check wall collision
-             checkWallCollision(/*tree,*/tree->container[i]);
 
              tree->container[i].x+=tree->container[i].vx;
              tree->container[i].y+=tree->container[i].vy;
              tree->container[i].z+=tree->container[i].vz;
 
-
-
-
-
+             //CHECK BOUNDARY COLLISION
+             checkPointToWallCollision(/*tree,*/tree->container[i]);
 
 //             //make sure we are updating the treePositions vector for each one too
 //             //check where the  tree->container[i] is on the treePositions vector and update that particular element ot the treePositions vector
@@ -619,13 +639,11 @@ void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
 //                 // update that particular element ot the treePositions vector
 //                 treePositions[index] = tree->container[i];
 
-                 if (std::isnan(tree->container[i].x))
-                 {
-                    std::cout<<"Nan"<<'\n';
-                 }
+//                 if (std::isnan(tree->container[i].x))
+//                 {
+//                    std::cout<<"Nan"<<'\n';
+//                 }
 //             }
-
-
          }
 
          return ;
@@ -635,19 +653,29 @@ void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
 
 
     if (tree->front_dl!=NULL && tree->front_dl->container.size()!=0)
+    {
         updatePosANDVelocityOfBranches((tree->front_dl));
+    }
 
     if (tree->front_dr!=NULL&&tree->front_dr->container.size()!=0)
+    {
         updatePosANDVelocityOfBranches((tree->front_dr));
+    }
 
-     if (tree->front_ul!=NULL&&tree->front_ul->container.size()!=0)
+    if (tree->front_ul!=NULL&&tree->front_ul->container.size()!=0)
+    {
         updatePosANDVelocityOfBranches((tree->front_ul));
+    }
 
      if (tree->front_ur!=NULL&&tree->front_ur->container.size()!=0)
-        updatePosANDVelocityOfBranches((tree->front_ur));
+     {
+         updatePosANDVelocityOfBranches((tree->front_ur));
+     }
 
      if (tree->back_dl!=NULL&&tree->back_dl->container.size()!=0)
-        updatePosANDVelocityOfBranches((tree->back_dl));
+     {
+         updatePosANDVelocityOfBranches((tree->back_dl));
+     }
 
      if (tree->back_dr!=NULL&&tree->back_dr->container.size()!=0)
      {
@@ -655,7 +683,9 @@ void NGLScene::updatePosANDVelocityOfBranches(std::shared_ptr<Octree> &tree)
      }
 
      if (tree->back_ul!=NULL&&tree->back_ul->container.size()!=0)
-        updatePosANDVelocityOfBranches((tree->back_ul));
+     {
+         updatePosANDVelocityOfBranches((tree->back_ul));
+     }
 
      if (tree->back_ur!=NULL&&tree->back_ur->container.size()!=0)
      {
@@ -671,7 +701,7 @@ void NGLScene::drawBranches(const std::shared_ptr<Octree> & tree)
     drawbranchescounter++;
     if(drawbranchescounter==742)
     {
-         std::cout<<"Nan"<<'\n';
+//         std::cout<<"Nan"<<'\n';
     }
 
 
@@ -724,7 +754,7 @@ void NGLScene::drawBranches(const std::shared_ptr<Octree> & tree)
      {
          if(drawbranchescounter==739)
          {
-              std::cout<<"Nan"<<'\n';
+//              std::cout<<"Nan"<<'\n';
          }
         drawBranches((tree->back_dr));
      }
@@ -841,8 +871,8 @@ void NGLScene::paintGL ()
     //clear treePositions vector, re-initialize treePositions vector based on tree container drawn
 //    treePositions.clear();
 
-    counterID=0;
-    saveNewPosBranches(tree);
+//    counterID=0;
+//    saveNewPosBranches(tree);
 
 
 
@@ -889,8 +919,8 @@ void NGLScene::timerEvent( QTimerEvent *_event )
         //reconstruct tree all the time
         treesize=0;
         tree->nexttreeID=0;
-    //    tree.reset(nullptr);
-        tree.reset(new Octree(0,0,0,treewidth,treeheight,treedepth));
+//        tree.reset(nullptr);
+        tree.reset(new Octree(0,0,0,treewidth/(totalCollisionObjects/10)+1,treeheight/(totalCollisionObjects/10)+1,treedepth/(totalCollisionObjects/10)+1));
         for(int i=0;i<totalCollisionObjects;i++)
         {
            //update x,y,z with position from the previous frame
@@ -920,11 +950,17 @@ void NGLScene::timerEvent( QTimerEvent *_event )
         //Solve collisions
         for(size_t i=0;i<totalCollisionObjects;i++)
         {
-           getPointCollisions(treePositions[i],tree);
+           pointToPointscollisionDetectionAndRespone(treePositions[i],tree);
         }
 
         //now update velocities
         updatePosANDVelocityOfBranches(tree);
+
+
+        counterID=0;
+        saveNewPosBranches(tree);
+
+
 
 
 
